@@ -144,7 +144,31 @@ public class Num  implements Comparable<Num> {
 	}
 
     public static Num product(Num a, Num b) {
-	return null;
+    	long carryProd = 0, carrySum = 0,val1,val2;
+		long[] parr = new long[a.len+b.len];
+		
+		for(int m = 0;m<b.len;m++) {
+			for(int n = 0;n<a.len;n++) {
+				val1 = ((b.arr[m]*a.arr[n]+carryProd)%a.base);
+				carryProd = (b.arr[m]*a.arr[n]+carryProd)/a.base;
+				val2 = parr[m+n]+val1+carrySum;
+				parr[m+n] = val2%a.base;
+				carrySum = val2/a.base;
+				if(n==a.len-1) {
+					parr[m+n+1] = parr[m+n+1] + carryProd + carrySum;
+					carrySum = 0;
+					carryProd = 0;
+				}
+			}
+			
+		}
+		
+//		for(int i = 0;i<parr.length;i++) {
+//			System.out.print(parr[i]);
+//		}
+		
+		
+		return new Num(parr,a.base);
     }
 
     // Use divide and conquer
@@ -324,12 +348,17 @@ public class Num  implements Comparable<Num> {
 
     public static void main(String[] args) {
 
-    	Num x = new Num("47");
-		Num y = new Num("42");
+    	Num x = new Num("999");
+		Num y = new Num("888");
 		Num z = Num.add(x, y);
 		System.out.println(z);
 		Num a = Num.power(x, 8);
+		Num b = Num.product(x, y);
 		System.out.println(a);
+		System.out.println("Product is : ");
+		for(int i = 0;i<b.len;i++) {
+		System.out.print(b.arr[i]);
+		}
 		if (z != null)
 			z.printList();
     }
