@@ -161,7 +161,15 @@ public class Num  implements Comparable<Num> {
 				}
 			}
 		}
-		return new Num(parr,a.base);
+		Num result = new Num(parr,a.base);
+		if((a.isNegative && b.isNegative) || (!a.isNegative && !b.isNegative)) {
+			result.isNegative = false;
+		}else
+		{
+			result.isNegative = true;
+		}
+		
+		return result;
     }
 
     // Use divide and conquer
@@ -241,6 +249,9 @@ public class Num  implements Comparable<Num> {
     // then the output is "100: 65 9 1"
     public void printList() {
 		System.out.print(this.base + ": ");
+			if(this.isNegative) {
+				System.out.print("-");
+			}
     		for(int i=0; i<len; i++) {
 			System.out.print(this.arr[i] + " ");
     		}
@@ -341,8 +352,8 @@ public class Num  implements Comparable<Num> {
 
     public static void main(String[] args) {
 
-    	Num x = new Num("999");
-		Num y = new Num("888");
+    	Num x = new Num("-999");
+		Num y = new Num("-888");
 		Num z = Num.add(x, y);
 		System.out.println(z);
 		Num a = Num.power(x, 8);
