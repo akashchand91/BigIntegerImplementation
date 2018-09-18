@@ -160,14 +160,7 @@ public class Num  implements Comparable<Num> {
 					carryProd = 0;
 				}
 			}
-			
 		}
-		
-//		for(int i = 0;i<parr.length;i++) {
-//			System.out.print(parr[i]);
-//		}
-		
-		
 		return new Num(parr,a.base);
     }
 
@@ -356,9 +349,7 @@ public class Num  implements Comparable<Num> {
 		Num b = Num.product(x, y);
 		System.out.println(a);
 		System.out.println("Product is : ");
-		for(int i = 0;i<b.len;i++) {
-		System.out.print(b.arr[i]);
-		}
+		b.printList();
 		if (z != null)
 			z.printList();
     }
