@@ -98,14 +98,12 @@ public class Num  implements Comparable<Num> {
 	public static Num subtract(Num a, Num b) {// a-b
 		Num result;
 		if (a.isNegative != b.isNegative) { // if a and b are of different signs
-			// Num num2 = ;
 			result = Num.addHelper(a, b); // result isNegative is false- when b is negative.
 			if (a.isNegative) {// case -a-b
 				result.isNegative = true;
 			} else
 				result.isNegative = false; // case a-(-b)
 		} else if (a.compareTo(b) > 0) { // take care of cases where a=999 and b = 8999
-			// else if(a.len>=b.len) {
 			result = subtractHelper(a, b);
 		} else {
 			result = subtractHelper(b, a);
@@ -162,19 +160,28 @@ public class Num  implements Comparable<Num> {
 			}
 			
 		}
-		
-//		for(int i = 0;i<parr.length;i++) {
-//			System.out.print(parr[i]);
-//		}
-		
-		
 		return new Num(parr,a.base);
     }
 
     // Use divide and conquer
     public static Num power(Num a, long n) {
-	return null;
-    }
+		return powerHelper(a, n);
+	}
+
+	public static Num powerHelper(Num a, long n) {
+		if (n == 0) {
+			Num result = new Num(1);
+			result.base = a.base; // 1 is 1 in any base
+			return result;
+		} else if (n == 1) {
+			return a;
+		} else if (n % 2 == 0) {
+			return powerHelper(product(a, a), n / 2);
+		} else {
+			Num bfrResult = powerHelper(product(a, a), (n - 1) / 2);
+			return product(a, bfrResult);
+		}
+	}
 
     // Use binary search to calculate a/b
     public static Num divide(Num a, Num b) {
@@ -187,8 +194,32 @@ public class Num  implements Comparable<Num> {
     }
 
     // Use binary search
-    public static Num squareRoot(Num a) {
-	return null;
+	// http://www.ardendertat.com/2012/01/26/programming-interview-questions-27-squareroot-of-a-number/
+	public static Num squareRoot(Num a) throws Exception {
+    		if(a.isNegative) {
+    			throw new Exception();
+    		} 
+    		
+		Num zero = new Num(0);
+		zero.base = a.base;
+    		Num one = new Num(1);
+    		one.base = a.base;
+
+		Num low = zero;
+		Num high = add(one, a.by2());
+		Num mid, square;
+		while (add(low, one).compare(high) < 0) {
+			mid = add(subtract(high, low).by2(), low);
+			square = power(mid, 2);
+			if (square.compare(a) == 0) {
+				return mid;
+			} else if (square.compare(a) < 0) {
+				low = mid;
+			} else {
+				high = mid;
+			}
+    		}
+		return low;
     }
 
 
@@ -248,7 +279,10 @@ public class Num  implements Comparable<Num> {
     // then the output is "100: 65 9 1"
     public void printList() {
 		System.out.print(this.base + ": ");
-    		for(int i=0; i<len; i++) {
+		if (this.isNegative) {
+			System.out.print('-');
+		}
+		for (int i = 0; i < this.len; i++) {
 			System.out.print(this.arr[i] + " ");
     		}
 		System.out.println();
@@ -267,7 +301,6 @@ public class Num  implements Comparable<Num> {
 				retString += base10.arr[i] + "";
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return retString;
@@ -288,7 +321,9 @@ public class Num  implements Comparable<Num> {
 
 	// Return number equal to "this" number, in base=newBase
 	public Num convertBase(int newBase) throws Exception {
-		Num inNewBase = this;
+		int size = (int) Math.ceil(((this.len + 1) / Math.log10(newBase)) + 1);
+		long[] newNumArr = new long[size];
+		Num inNewBase = new Num(newNumArr, newBase);
 		// convert to decimal
 		if (this.base != 10) {
 			inNewBase = this.convertToBase10();
@@ -296,8 +331,6 @@ public class Num  implements Comparable<Num> {
 		if (newBase != 10) {
 			// convert to new base from decimal
 			Num newbase = new Num(newBase);
-			int size = (int) Math.ceil(((inNewBase.len + 1) / Math.log10(newBase)) + 1);
-			long[] newNumArr = new long[size];
 			int i = 0;
 			while (inNewBase.len == 1 && inNewBase.arr[0] == 0) {
 				newNumArr[i] = mod(inNewBase, newbase).arr[0];
@@ -322,12 +355,12 @@ public class Num  implements Comparable<Num> {
 			newNum = new long[this.len];
 			long carry = 0;
 			for (int i = 0; i < len; i++) {
-				long num = (carry + this.arr[this.len - 1 - i]);
+				long num = (carry * this.base + this.arr[this.len - 1 - i]);
 				carry = num % 2;
 				newNum[i] = num / 2;
 			}
 		}
-		return new Num(newNum, this.base);
+		return new Num(truncate(newNum), this.base);
 	}
 
 
@@ -346,9 +379,9 @@ public class Num  implements Comparable<Num> {
     }
 
 
-    public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
-    	Num x = new Num("999");
+		Num x = new Num("999");
 		Num y = new Num("888");
 		Num z = Num.add(x, y);
 		System.out.println(z);
@@ -356,10 +389,22 @@ public class Num  implements Comparable<Num> {
 		Num b = Num.product(x, y);
 		System.out.println(a);
 		System.out.println("Product is : ");
-		for(int i = 0;i<b.len;i++) {
-		System.out.print(b.arr[i]);
+		for (int i = 0; i < b.len; i++) {
+			System.out.print(b.arr[i]);
 		}
 		if (z != null)
 			z.printList();
+
+		Num y1 = new Num("999");
+		Num by = y1.by2();
+		by.printList();
+		Num a1 = new Num(2);
+		Num b1 = power(a1, 3);
+		b1.printList();
+
+		Num c = new Num(16);
+		c = squareRoot(c);
+		c.printList();
+
     }
 }
