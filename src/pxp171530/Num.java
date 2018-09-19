@@ -158,9 +158,15 @@ public class Num  implements Comparable<Num> {
 					carryProd = 0;
 				}
 			}
-			
 		}
-		return new Num(parr,a.base);
+		Num result = new Num(parr,a.base);
+		if((a.isNegative && b.isNegative) || (!a.isNegative && !b.isNegative)) {
+			result.isNegative = false;
+		}else
+		{
+			result.isNegative = true;
+		}
+		return result;
     }
 
     // Use divide and conquer
@@ -381,17 +387,15 @@ public class Num  implements Comparable<Num> {
 
 	public static void main(String[] args) throws Exception {
 
-		Num x = new Num("999");
-		Num y = new Num("888");
+		Num x = new Num("-999");
+		Num y = new Num("-888");
 		Num z = Num.add(x, y);
 		System.out.println(z);
 		Num a = Num.power(x, 8);
 		Num b = Num.product(x, y);
 		System.out.println(a);
 		System.out.println("Product is : ");
-		for (int i = 0; i < b.len; i++) {
-			System.out.print(b.arr[i]);
-		}
+		b.printList();
 		if (z != null)
 			z.printList();
 
