@@ -34,13 +34,19 @@ public class Num  implements Comparable<Num> {
 
     private static long[] truncate(long arr[]) {
 		int length = arr.length;
-		for (int i = length - 1; i >= 0; i--) {
+		for (int i = length - 1; i > 0; i--) {
 			if (arr[i] == 0 && arr[i - 1] != 0) {
 				return Arrays.copyOfRange(arr, 0, i);
 			}
 		}
 		return arr;
     }
+
+	private static Num truncate(Num a) {
+		a.arr = truncate(a.arr);
+		a.len = a.arr.length;
+		return a;
+	}
 
     public static Num add(Num a, Num b) {
 		Num result;
@@ -57,7 +63,7 @@ public class Num  implements Comparable<Num> {
 			result = addHelper(a, b);
 			result.isNegative = a.isNegative;
 		}
-		return result;
+		return truncate(result);
     }
 
 	private static Num addHelper(Num a, Num b) {
@@ -110,7 +116,7 @@ public class Num  implements Comparable<Num> {
 			result.isNegative = true;
 		}
 
-		return result;
+		return truncate(result);
 	}
 
 	private static Num subtractHelper(Num a, Num b) {
@@ -166,12 +172,12 @@ public class Num  implements Comparable<Num> {
 		{
 			result.isNegative = true;
 		}
-		return result;
+		return truncate(result);
     }
 
     // Use divide and conquer
     public static Num power(Num a, long n) {
-		return powerHelper(a, n);
+		return truncate(powerHelper(a, n));
 	}
 
 	public static Num powerHelper(Num a, long n) {
@@ -194,14 +200,28 @@ public class Num  implements Comparable<Num> {
 	return null;
     }
 
+	private static boolean isZero(Num a) {
+		return ((a.len == 1) && (a.arr[0] == 0));
+	}
     // return a%b
-	// modulo = number - (divisor * (number / divisor))
-    public static Num mod(Num a, Num b) {
+	public static Num mod(Num a, Num b) throws Exception {
 
-		Num quotient = divide(a, b);
-		Num multiple = product(b, quotient);
-		Num remainder = subtract(a, multiple);
-		return remainder;
+		if (a.base != b.base || isZero(b) || a.isNegative || b.isNegative) {
+			// if base not equal or a modulo 0 is expected
+			throw new java.lang.ArithmeticException();
+		}
+		Num res = new Num(a.arr, a.base);
+		int comapreRes = res.compare(b);
+		if (comapreRes < 0) {
+			return a;
+		} else if (comapreRes == 0) {
+			return new Num(0); // return zero
+		} else {
+			while (!res.isNegative || isZero(res)) {
+				res = subtract(res, b);
+			}
+		}
+		return res;
     }
 
     // Use binary search
@@ -321,42 +341,43 @@ public class Num  implements Comparable<Num> {
 
 	public Num convertToBase10() throws Exception {
 		// convert to decimal - horner's method
-		Num inBase10 = new Num(0);
+		int size = (int) Math.ceil(((this.len + 1) / Math.log10(10)) + 1);
+		long[] newNumArr = new long[size];
+		Num inBase10 = new Num(newNumArr, 10);
 		for (int i = 0; i <= this.len - 1; i++) {
 			Num part = new Num((long) (this.arr[i] * Math.pow(10, i))); // in base 10 so we can call the constructor
 			add(inBase10, part);
 		}
-		inBase10.base = 10;
 		return inBase10;
 	}
 
 	// Return number equal to "this" number, in base=newBase
 	public Num convertBase(int newBase) throws Exception {
-		int size = (int) Math.ceil(((this.len + 1) / Math.log10(newBase)) + 1);
-		long[] newNumArr = new long[size];
-		Num inNewBase = new Num(newNumArr, newBase);
+		Num inBase10 = this;
+		Num inNewbase = this;// = new Num(newNumArr, newBase);
 		// convert to decimal
 		if (this.base != 10) {
-			inNewBase = this.convertToBase10();
+			inBase10 = this.convertToBase10();
 		}
 		if (newBase != 10) {
-			// convert to new base from decimal
-			Num newbase = new Num(newBase);
+			int size = (int) Math.ceil(((this.len + 1) / Math.log10(newBase)) + 1);
+			long[] newNumArr = new long[size];
+			inNewbase = new Num(newNumArr, newBase);
+			Num baseObj = new Num(newBase);
 			int i = 0;
-			while (inNewBase.len == 1 && inNewBase.arr[0] == 0) {
-				newNumArr[i] = mod(inNewBase, newbase).arr[0];
-				inNewBase = divide(inNewBase, newbase);
+			while (!isZero(inBase10)) {
+				newNumArr[i] = mod(inBase10, baseObj).arr[0];
+				inBase10 = divide(inBase10, baseObj);
 				i++;
 			}
 		}
-		inNewBase.base = newBase;
-		return inNewBase; // call truncate here
+		return inNewbase; // call truncate here
 	}
 
 	// Divide by 2, for using in binary search
 	public Num by2() {
 		long[] newNum;
-		if (this.base == 2) {
+		if (this.base == 2) { // right shift
 			newNum = new long[this.len - 1];
 			for (int i = 1; i < len; i++) {
 				newNum[i - 1] = this.arr[i];
@@ -365,8 +386,8 @@ public class Num  implements Comparable<Num> {
 		} else {
 			newNum = new long[this.len];
 			long carry = 0;
-			for (int i = 0; i < len; i++) {
-				long num = (carry * this.base + this.arr[this.len - 1 - i]);
+			for (int i = (this.len - 1); i >= 0; i--) {
+				long num = (carry * this.base + this.arr[i]);
 				carry = num % 2;
 				newNum[i] = num / 2;
 			}
@@ -392,28 +413,37 @@ public class Num  implements Comparable<Num> {
 
 	public static void main(String[] args) throws Exception {
 
-		Num x = new Num("-999");
-		Num y = new Num("-888");
+		System.out.println("Add");
+		Num x = new Num("11");
+		Num y = new Num("8");
 		Num z = Num.add(x, y);
 		z.printList();
-
+		System.out.println("Subtract");
+		Num z1 = subtract(x, y);
+		z1.printList();
+		System.out.println("Power");
 		Num a = Num.power(x, 8);
 		a.printList();
-
+		System.out.println("Product");
 		Num b = Num.product(x, y);
 		b.printList();
-
+		System.out.println("by2");
 		Num y1 = new Num("999");
 		Num by = y1.by2();
 		by.printList();
-
+		System.out.println("power");
 		Num a1 = new Num(2);
-		Num b1 = power(a1, 3);
-		b1.printList();
-
+		a1 = power(a1, 3);
+		a1.printList();
+		System.out.println("SquareRoot");
 		Num c = new Num(16);
 		c = squareRoot(c);
 		c.printList();
+		System.out.println("Mod");
+		Num d = new Num(19);
+		Num d1 = new Num(3);
+		d = mod(d, d1);
+		d.printList();
 
     }
 }
