@@ -414,8 +414,8 @@ public class Num  implements Comparable<Num> {
 	public static void main(String[] args) throws Exception {
 
 		System.out.println("Add");
-		Num x = new Num("11");
-		Num y = new Num("8");
+		Num x = new Num("991");
+		Num y = new Num("800");
 		Num z = Num.add(x, y);
 		z.printList();
 		System.out.println("Subtract");
