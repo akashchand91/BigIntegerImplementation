@@ -195,8 +195,13 @@ public class Num  implements Comparable<Num> {
     }
 
     // return a%b
+	// modulo = number - (divisor * (number / divisor))
     public static Num mod(Num a, Num b) {
-	return null;
+
+		Num quotient = divide(a, b);
+		Num multiple = product(b, quotient);
+		Num remainder = subtract(a, multiple);
+		return remainder;
     }
 
     // Use binary search
@@ -390,18 +395,18 @@ public class Num  implements Comparable<Num> {
 		Num x = new Num("-999");
 		Num y = new Num("-888");
 		Num z = Num.add(x, y);
-		System.out.println(z);
+		z.printList();
+
 		Num a = Num.power(x, 8);
+		a.printList();
+
 		Num b = Num.product(x, y);
-		System.out.println(a);
-		System.out.println("Product is : ");
 		b.printList();
-		if (z != null)
-			z.printList();
 
 		Num y1 = new Num("999");
 		Num by = y1.by2();
 		by.printList();
+
 		Num a1 = new Num(2);
 		Num b1 = power(a1, 3);
 		b1.printList();
