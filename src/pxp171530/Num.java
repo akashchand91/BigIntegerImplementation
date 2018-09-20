@@ -221,7 +221,7 @@ public class Num  implements Comparable<Num> {
 				res = subtract(res, b);
 			}
 		}
-		return res;
+		return truncate(res);
     }
 
     // Use binary search
@@ -250,7 +250,7 @@ public class Num  implements Comparable<Num> {
 				high = mid;
 			}
     		}
-		return low;
+		return truncate(low);
     }
 
 
@@ -348,7 +348,7 @@ public class Num  implements Comparable<Num> {
 			Num part = new Num((long) (this.arr[i] * Math.pow(10, i))); // in base 10 so we can call the constructor
 			add(inBase10, part);
 		}
-		return inBase10;
+		return truncate(inBase10);
 	}
 
 	// Return number equal to "this" number, in base=newBase
@@ -371,7 +371,7 @@ public class Num  implements Comparable<Num> {
 				i++;
 			}
 		}
-		return inNewbase; // call truncate here
+		return truncate(inNewbase); // call truncate here
 	}
 
 	// Divide by 2, for using in binary search
@@ -444,6 +444,7 @@ public class Num  implements Comparable<Num> {
 		Num d1 = new Num(3);
 		d = mod(d, d1);
 		d.printList();
+		System.out.println("Convert base");
 
     }
 }
