@@ -115,23 +115,51 @@ public class Num  implements Comparable<Num> {
 		return truncate(result);
 	}
 
-	public static Num subtract(Num a, Num b) {// a-b
-		Num result;
-		if (a.isNegative != b.isNegative) { // if a and b are of different signs
-			result = Num.addHelper(a, b); // result isNegative is false- when b is negative.
-			if (a.isNegative) {// case -a-b
-				result.isNegative = true;
-			} else
-				result.isNegative = false; // case a-(-b)
-		} else if (a.compareTo(b) > 0) { // take care of cases where a=999 and b = 8999
-			result = subtractHelper(a, b);
-		} else {
-			result = subtractHelper(b, a);
+	    public static Num subtract(Num a, Num b) {// a-b
+    	Num result;
+    	if(a.isNegative != b.isNegative) { // if a and b are of different signs
+    		//Num num2 = ;
+    		result = Num.addHelper(a,b); // result isNegative is false- when b is negative.
+    		if(a.isNegative) {// case -a-b
+    			result.isNegative = true;
+    		}else
+    			result.isNegative = false; // case a-(-b)
+    	}
+    	else if (a.compareTo(b) >= 0) { // take care of cases where a=999 and b = 8999
+    	 if(a.len > b.len) {
+    		 Num paddedB = addPadding(b, a.len-b.len);
+    		 result= subtractHelper(a, paddedB);
+    	 }else
+			result= subtractHelper(a, b);
+    	}
+		else {
+			 if(b.len > a.len) {
+	    		 Num paddedA = addPadding(a, b.len-a.len);
+	    		 result= subtractHelper(b, paddedA);
+	    	 }else
+	    		 result= subtractHelper(b, a);
 			result.isNegative = true;
 		}
+		//}else {
+			
+		//}
 
 		return truncate(result);
 	}
+
+    private static Num addPadding(Num obj, int length) {
+    
+    	int totalLength = obj.len+length;
+    	long []temp = new long[totalLength];
+		 for(int i=0;i<totalLength;i++) {
+			 if(i<obj.len)
+				 temp[i]=obj.arr[i];
+			 else
+				 temp[i]=0;
+			 
+		 }
+    	return new Num(temp, obj.base);
+    }
 
 	private static Num subtractHelper(Num a, Num b) {
 		int size = a.len > b.len ? a.len : b.len;
