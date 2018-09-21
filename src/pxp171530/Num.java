@@ -1,6 +1,11 @@
 package pxp171530;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
 
 public class Num  implements Comparable<Num> {
 
@@ -33,24 +38,22 @@ public class Num  implements Comparable<Num> {
     }
 
     private static long[] truncate(long arr[]) {
+		int length = arr.length;
+		boolean isZero = true;
+		// If no trailing zeros
+		if (arr[length - 1] != 0) {
+			return arr;
+		}
 
-    	int length = arr.length;
-    	if(arr[length-1]!=0)
-    		return arr;
-    	boolean isZero = true;
-    	for(int i=length-1;i>0;i--) {
-    		if(arr[i]!=0)
-    			isZero=false;
-    		if(arr[i]==0 && arr[i-1]!=0) {
-    			return Arrays.copyOfRange(arr, 0, i);
-    		}
-    	}
-    	if(isZero) {
-    		arr = new long[1];
-    		arr[0]=0;
-    		return arr;
-    	}
-    	return arr;
+		for (int i = length - 1; i > 0; i--) {
+			if (arr[i] != 0) {
+				isZero = false;
+			}
+			if (arr[i] == 0 && arr[i - 1] != 0) {
+				return Arrays.copyOfRange(arr, 0, i);
+			}
+		}
+		return isZero ? Arrays.copyOfRange(arr, 0, 1) : arr;
     }
 
 	private static Num truncate(Num a) {
@@ -109,7 +112,7 @@ public class Num  implements Comparable<Num> {
 		}
 		result = new Num(truncate(resultArr), a.base);
 
-		return result;
+		return truncate(result);
 	}
 
 	public static Num subtract(Num a, Num b) {// a-b
@@ -155,7 +158,7 @@ public class Num  implements Comparable<Num> {
 		}
 		result = new Num(resultArr, a.base);
 		result.isNegative = a.isNegative;
-		return result;
+		return truncate(result);
 	}
 
     public static Num product(Num a, Num b) {
@@ -385,8 +388,9 @@ public class Num  implements Comparable<Num> {
 		long[] newNumArr = new long[size];
 		Num inBase10 = new Num(newNumArr, 10);
 		for (int i = 0; i <= this.len - 1; i++) {
-			Num part = new Num((long) (this.arr[i] * Math.pow(10, i))); // in base 10 so we can call the constructor
-			add(inBase10, part);
+			// in base 10 so we can call the constructor
+			Num part = new Num((long) (this.arr[i] * Math.pow(this.base, i)));
+			inBase10 = add(inBase10, part);
 		}
 		return truncate(inBase10);
 	}
@@ -440,183 +444,132 @@ public class Num  implements Comparable<Num> {
     // Each string is one of: "*", "+", "-", "/", "%", "^", "0", or
     // a number: [1-9][0-9]*.  There is no unary minus operator.
     public static Num evaluatePostfix(String[] expr) throws Exception {
-    	Deque<String> stack = new ArrayDeque<String>();
-    	Num res;
-    	int i=0;
-    	while(i<expr.length){
-    		if(isNumber(expr[i])){
-    			stack.push(expr[i]);
-    			i++;
-    		}
-    		else{
-    			String op1 = stack.pop();
-    			String op2 = stack.pop();
-    			String op = expr[i];
-    			i++;
-    			switch(op){
-    			case "+" : res = add(new Num(op1),new Num(op2));
-    			break;
-    			case "-" : res = subtract(new Num(op2),new Num(op1));
-    			break;
-    			case "*" : res = product(new Num(op1),new Num(op2));
-    			break;
-    			case "/" : res = divide(new Num(op2),new Num(op1));
-    			break;
-    			case "%" : res = mod(new Num(op2),new Num(op1));
-    			break;
-    			case "^"  : res = power(new Num(op1),Long.parseLong(op2));
-    			break;
-    			default: res=null;
-    			}
-    			stack.push(res+"");
-
-
-    		}
-    	}
-
-    	return new Num(stack.pop());
+		Deque<String> stack = new ArrayDeque<String>();
+		Num res;
+		int i = 0;
+		while (i < expr.length) {
+			if (isNumber(expr[i])) {
+				stack.push(expr[i]);
+				i++;
+			} else {
+				String op1 = stack.pop();
+				String op2 = stack.pop();
+				String op = expr[i];
+				i++;
+				switch (op) {
+				case "+":
+					res = add(new Num(op1), new Num(op2));
+					break;
+				case "-":
+					res = subtract(new Num(op2), new Num(op1));
+					break;
+				case "*":
+					res = product(new Num(op1), new Num(op2));
+					break;
+				case "/":
+					res = divide(new Num(op2), new Num(op1));
+					break;
+				case "%":
+					res = mod(new Num(op2), new Num(op1));
+					break;
+				case "^":
+					res = power(new Num(op1), Long.parseLong(op2));
+					break;
+				default:
+					res = null;
+				}
+				stack.push(res + "");
+			}
+		}
+		return new Num(stack.pop());
     }
 
     // Evaluate an expression in infix and return resulting number
     // Each string is one of: "*", "+", "-", "/", "%", "^", "(", ")", "0", or
     // a number: [1-9][0-9]*.  There is no unary minus operator.
     public static Num evaluateInfix(String[] expr) throws Exception {
-    	
-    	String []postFix = InfixToPostfix(expr);
-    	return evaluatePostfix(postFix);
+		String[] postFix = InfixToPostfix(expr);
+		return evaluatePostfix(postFix);
     }
 
 
     private static String[] InfixToPostfix(String[] expr) {
-    	Stack<String> opStack = new Stack<>();
+		Stack<String> opStack = new Stack<>();
 		opStack.push("$"); // base of the stack to avaid handling empty stack case
 		Queue<String> outputQueue = new LinkedList<>();
 		int len = expr.length;
-		
-		for(int i=0;i<len;i++) {
+
+		for (int i = 0; i < len; i++) {
 			String token = expr[i];
-			if(isNumber(token)) { // Number is pushed into the queue
+			if (isNumber(token)) { // Number is pushed into the queue
 				outputQueue.offer(token);
-			}else {
-				
-				if(token.equals("("))
+			} else {
+				if (token.equals("("))
 					opStack.push(token);
-				else if(token.equals(")")) {
-					while(!opStack.peek().equals("(")) {
+				else if (token.equals(")")) {
+					while (!opStack.peek().equals("(")) {
 						outputQueue.offer(opStack.pop());
 					}
 					opStack.pop();
 				}
-				else if(comparePrecedence(token, opStack.peek())) { // if op1 has a higher precedence than top of stack, push op1 into the stack
+				else if (comparePrecedence(token, opStack.peek())) {
+					// if op1 has a higher precedence than top of stack, push op1 into the stack
 					opStack.push(token);
-				}else {
-					while(!comparePrecedence(token, opStack.peek())) { // if op1 has lower precedence than top of stack, pop stack until op1 gets the higher precedence than the top of stack
+				} else {
+					// if op1 has lower precedence than top of stack, pop stack until op1 gets the
+					// higher precedence than the top of stack
+					while (!comparePrecedence(token, opStack.peek())) {
 						outputQueue.offer(opStack.pop());
 					}
 					opStack.push(token);
 				}
 			}
-			
-			
-			
 		}
-		while(!opStack.peek().equals("$")) {
-			outputQueue.offer(opStack.pop()+"");
-		}
-		int numElements = outputQueue.size();
-		String[]postfixArr = outputQueue.toArray(new String[numElements]);
-		return postfixArr;
 
-		
+		while (!opStack.peek().equals("$")) {
+			outputQueue.offer(opStack.pop() + "");
+		}
+
+		int numElements = outputQueue.size();
+		String[] postfixArr = outputQueue.toArray(new String[numElements]);
+		return postfixArr;
+			
 	}
 
 	private static boolean isNumber(String token) {
 		String regex = "[1-9][0-9]*";
-		if(token.matches(regex) || token.equals("0"))
+		if (token.matches(regex) || token.equals("0")) {
 			return true;
-		else
-			return false;
+		}
+		return false;
 	}
 
 	private static boolean comparePrecedence(String op1, String op2) {
 		//if op1 has a higher precedence than op2
 		switch(op1) {
-		
 			case "+":
-				if(op2=="(")
-					return true;
-				if(op2=="$")
-					return true;
-				if(op2=="+")
-					return true;
-				if (op2=="-")
-					return false;
-				if (op2=="*")
-					return false;
-				if (op2=="/")
-					return false;
-				if (op2=="^")
-					return false;
+			if (op2 == "(" || op2 == "$" || op2 == "+")
+				return true;
+			if (op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^")
+				return false;
 			case "-":
-				if(op2=="(")
-					return true;
-				if(op2=="$")
-					return true;
-				if(op2=="+")
-					return false;
-				if (op2=="-")
-					return true;
-				if (op2=="*")
-					return false;
-				if (op2=="/")
-					return false;
-				if (op2=="^")
-					return false;
+			if (op2 == "(" || op2 == "$" || op2 == "-")
+				return true;
+			if (op2 == "+" || op2 == "*" || op2 == "/" || op2 == "^")
+				return false;
 			case "*":
-				if(op2=="(")
-					return true;
-				if(op2=="$")
-					return true;
-				if(op2=="+")
-					return true;
-				if (op2=="-")
-					return true;
-				if (op2=="*")
-					return true;
-				if (op2=="/")
-					return false;
-				if (op2=="^")
-					return false;
+			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*")
+				return true;
+			if (op2 == "/" || op2 == "^")
+				return false;
 			case "/":
-				if(op2=="(")
-					return true;
-				if(op2=="$")
-					return true;
-				if(op2=="+")
-					return true;
-				if (op2=="-")
-					return true;
-				if (op2=="*")
-					return true;
-				if (op2=="/")
-					return true;
-				if (op2=="^")
-					return false;
+			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*" || op2 == "/")
+				return true;
+			if (op2 == "^")
+				return false;
 			case "^":
-				if(op2=="(")
-					return true;
-				if(op2=="$")
-					return true;
-				if(op2=="+")
-					return true;
-				if (op2=="-")
-					return true;
-				if (op2=="*")
-					return true;
-				if (op2=="/")
-					return true;
-				if (op2=="^")
-					return true;
+			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^")
+				return true;
 		}
 		return false;
 	}
@@ -624,10 +577,8 @@ public class Num  implements Comparable<Num> {
 	public static void main(String[] args) throws Exception {
 
 		System.out.println("Add");
-
-		Num x = new Num("90");
-		Num y = new Num("8");
-
+		Num x = new Num("1000");
+		Num y = new Num("2");
 		Num z = Num.add(x, y);
 		z.printList();
 		System.out.println("Subtract");
@@ -657,6 +608,16 @@ public class Num  implements Comparable<Num> {
 		d = mod(d, d1);
 		d.printList();
 		System.out.println("Convert base");
+		Num e = new Num(55);
+		Num e1 = e.convertBase(2);
+		e1.printList();
+
+		System.out.println("Product in base 12");
+		Num f = new Num(20);
+		Num f1 = f.convertBase(12);
+		f1 = product(f1, f1);
+		f1.printList();
+		System.out.println(f1.toString());
 
     }
 }
