@@ -263,6 +263,9 @@ public class Num  implements Comparable<Num> {
 			while (!res.isNegative || isZero(res)) {
 				res = subtract(res, b);
 			}
+			if (res.isNegative) { // as we have done one extra subtract
+				res = add(res, b);
+			}
 		}
 		return truncate(res);
     }
@@ -410,7 +413,12 @@ public class Num  implements Comparable<Num> {
 			Num baseObj = new Num(newBase);
 			int i = 0;
 			while (!isZero(inBase10)) {
-				newNumArr[i] = mod(inBase10, baseObj).arr[0];
+				Num theMod = mod(inBase10, baseObj);
+				long numInNewBase = 0;
+				for (int j = 0; j < theMod.len; j++) {
+					numInNewBase = (long) (numInNewBase + theMod.arr[j] * Math.pow(10, j));
+				}
+				newNumArr[i] = numInNewBase;
 				inBase10 = divide(inBase10, baseObj);
 				i++;
 			}
@@ -618,6 +626,10 @@ public class Num  implements Comparable<Num> {
 		f1 = product(f1, f1);
 		f1.printList();
 		System.out.println(f1.toString());
+
+		Num g = new Num(45);
+		Num g1 = g.convertBase(16);
+		g1.printList();
 
     }
 }
