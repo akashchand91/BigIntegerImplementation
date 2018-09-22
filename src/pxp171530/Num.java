@@ -72,14 +72,24 @@ public class Num  implements Comparable<Num> {
 	}
 
 	// Num a + b
-    public static Num add(Num a, Num b) {
+    public static Num add(Num a, Num b) { 
 		Num result;
-		if (a.isNegative != b.isNegative) { // case (b + -a) & (a + -b)
-			if (a.absoluteCompare(b) > 0) {
+		if (a.isNegative != b.isNegative) { // case b-a & a-b
+
+			if (a.compare(b) > 0) {
+				if(a.len > b.len) { // if the arrays are of different sizes
+		    		 Num paddedB = addPadding(b, a.len-b.len);
+		    		 result = subtractHelper(a, paddedB);
+				}else {
 				result = subtractHelper(a, b);
+				}
 				result.isNegative = a.isNegative;
 			} else {
-				result = subtractHelper(b, a);
+				if(b.len > a.len) { // if the arrays are of different sizes
+		    		 Num paddedA = addPadding(a, b.len-a.len);
+		    		 result = subtractHelper(b, paddedA);
+				}else
+					result = subtractHelper(b, a);
 				result.isNegative = b.isNegative;
 			}
 		} else {
@@ -166,7 +176,7 @@ public class Num  implements Comparable<Num> {
 		return new Num(temp, obj.base);
     }
 
-	private static Num subtractHelper(Num a, Num b) {
+	private static Num subtractHelper(Num a, Num b) { //Assumes a and b contain equal sized arrays-> performs a-b
 		int size = a.len > b.len ? a.len : b.len;
 		Num result;
 		long[] resultArr = new long[size];
@@ -247,31 +257,39 @@ public class Num  implements Comparable<Num> {
 
     // Use binary search to calculate a/b
     public static Num divide(Num a, Num b) {
-    	if (b.compareTo(new Num(0)) == 0) {
+    	Num zero = new Num(0);
+    	long base = a.base();
+    	zero.base = base;
+    	if(a.base!=b.base)
+    		throw new ArithmeticException("Base of the two numbers need to be equal!!");
+    	if (isZero(b)) {
 			throw new ArithmeticException("Divide by zero");
 		}
-     	Num left = new Num(0);
+     	Num left = zero;
 		Num right = a;
-		Num res = new Num(0);
+		Num res = zero;
 		boolean isNegative= false;
+		Num comparision = new Num(b.arr,b.base);
+		comparision.isNegative = true;
 		if((a.isNegative == b.isNegative) ){
 			isNegative = false;
 		}
-		else if((a.isNegative && !b.isNegative) ||( !a.isNegative && b.isNegative) ){
+		else if(a.isNegative != b.isNegative ){
 			isNegative=true;
 			
 		}
 		a.isNegative=false;
 		b.isNegative=false;
 		while (true) {
-			Num mid1 = subtract(right,left).by2();
-			Num mid = add(left, mid1);
-			if (subtract((product(b, mid)),a).compareTo(new Num(0)) <= 0) {
+			Num mid = add(right, left).by2();
+			Num prod= product(b, mid);
+			Num diff = subtract(prod,a);
+			if (diff.compareTo(zero) <=0 && diff.compareTo(comparision)>0) {
 				res = mid;
 				res.isNegative = isNegative;
 				return truncate(res);
 			}
-			if (a.compareTo(product(b, mid)) > 0) {
+			if (a.compareTo(prod) > 0) {
 				left = mid;
 			} else {
 				right = mid;
@@ -365,31 +383,42 @@ public class Num  implements Comparable<Num> {
 	}
 
     // compare "this" to "other": return +1 if this is greater, 0 if equal, -1 otherwise
-    public int compareTo(Num other) {
-		int size = 0;
-		if (this.isNegative == other.isNegative) {
-			if (this.len > other.len)
-				return 1;
-			else if (this.len < other.len)
-				return -1;
-			else {
-				size = this.len;
-				for (int i = size - 1; i >= 0; i--) {
-					if (this.arr[i] > other.arr[i]) {
-						return 1;
-					} else if (this.arr[i] < other.arr[i]) {
-						return -1;
-					} else
-						continue;
-				}
-			}
-		} else {
-			if (this.isNegative)
-				return -1;
-			if (other.isNegative)
-				return 1;
-		}
-		return 0;
+    public int compareTo(Num other) { 
+    	int size =0;
+    	if(this.isNegative==other.isNegative) {
+    		if(this.len>other.len) {
+    			if(this.isNegative) // in case both are negative
+    				return -1;
+    			return 1;
+    		}
+    		else if(this.len<other.len) {
+    			if(this.isNegative) // in case both are negative
+    				return 1;
+    			return -1;
+    		}
+    		else {
+    			size=this.len;
+		    	for(int i=size-1;i>=0;i--) {
+		    		if(this.arr[i]>other.arr[i]) {
+		    			if(this.isNegative) // in case both are negative
+		    				return -1;
+		    			return 1;
+		    		}else if (this.arr[i]<other.arr[i]) {
+		    			if(this.isNegative) // in case both are negative
+		    				return 1;
+		    			return -1;
+		    		}else
+		    			continue;
+		    	}
+    		}
+    	}
+    	else {
+    		if(this.isNegative)
+    			return -1;
+    		if(other.isNegative)
+    			return 1;
+    	}
+	return 0;
     }
     
     // Output using the format "base: elements of list ..."
