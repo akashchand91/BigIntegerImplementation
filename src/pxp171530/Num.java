@@ -16,10 +16,12 @@ public class Num  implements Comparable<Num> {
     int len;  // actual number of elements of array that are used;  number is stored in arr[0..len-1]
 
     public Num(String s) {
+		// handle negative
 		if (s.charAt(0) == '-') {
 			this.isNegative = true;
 			s = s.substring(1);
 		}
+		// put the number into array with Least significant digit as arr[0]
 		len = s.length();
 		arr = new long[len];
 		for (int i = 0; i < len; i++) {
@@ -27,16 +29,21 @@ public class Num  implements Comparable<Num> {
 		}
     }
 
+	// constructor for creating Num object given a long[] in specified base
+	// consumer should handle negative later
     private Num(long arr[], long base) {
 		this.arr = arr;
 		this.base = base;
 		this.len = arr.length;
     }
 
+	// constructor to create Num object given a long
     public Num(long x) {
 		this(String.valueOf(x));
     }
 
+	// deletes the leading zeroes for a number(or trailing zeroes in the arr) and
+	// returns a new array
     private static long[] truncate(long arr[]) {
 		int length = arr.length;
 		boolean isZero = true;
@@ -56,17 +63,18 @@ public class Num  implements Comparable<Num> {
 		return isZero ? Arrays.copyOfRange(arr, 0, 1) : arr;
     }
 
+	// deletes the trailing zeroes of a Num object and updates len
 	private static Num truncate(Num a) {
 		a.arr = truncate(a.arr);
 		a.len = a.arr.length;
 		return a;
 	}
 
+	// Num a + b
     public static Num add(Num a, Num b) {
 		Num result;
-		if (a.isNegative != b.isNegative) { // case b-a & a-b
-
-			if (a.compare(b) > 0) {
+		if (a.isNegative != b.isNegative) { // case (b + -a) & (a + -b)
+			if (a.absoluteCompare(b) > 0) {
 				result = subtractHelper(a, b);
 				result.isNegative = a.isNegative;
 			} else {
@@ -116,49 +124,45 @@ public class Num  implements Comparable<Num> {
 	}
 
 	    public static Num subtract(Num a, Num b) {// a-b
-    	Num result;
-    	if(a.isNegative != b.isNegative) { // if a and b are of different signs
-    		//Num num2 = ;
-    		result = Num.addHelper(a,b); // result isNegative is false- when b is negative.
-    		if(a.isNegative) {// case -a-b
-    			result.isNegative = true;
-    		}else
-    			result.isNegative = false; // case a-(-b)
-    	}
-    	else if (a.compareTo(b) >= 0) { // take care of cases where a=999 and b = 8999
-    	 if(a.len > b.len) {
-    		 Num paddedB = addPadding(b, a.len-b.len);
-    		 result= subtractHelper(a, paddedB);
-    	 }else
-			result= subtractHelper(a, b);
-    	}
-		else {
-			 if(b.len > a.len) {
-	    		 Num paddedA = addPadding(a, b.len-a.len);
-	    		 result= subtractHelper(b, paddedA);
-	    	 }else
-	    		 result= subtractHelper(b, a);
+		Num result;
+		if (a.isNegative != b.isNegative) { // if a and b are of different signs
+			result = Num.addHelper(a, b); // result isNegative is false- when b is negative.
+			if (a.isNegative) {// case -a-b
+				result.isNegative = true;
+			} else {
+				result.isNegative = false; // case a-(-b)
+			}
+		} else if (a.compareTo(b) >= 0) { // take care of cases where a=999 and b = 8999
+			if (a.len > b.len) {
+				Num paddedB = addPadding(b, a.len - b.len);
+				result = subtractHelper(a, paddedB);
+			} else {
+				result = subtractHelper(a, b);
+			}
+		} else {
+			if (b.len > a.len) {
+				Num paddedA = addPadding(a, b.len - a.len);
+				result = subtractHelper(b, paddedA);
+			} else
+				result = subtractHelper(b, a);
 			result.isNegative = true;
 		}
-		//}else {
-			
-		//}
-
 		return truncate(result);
 	}
 
-    private static Num addPadding(Num obj, int length) {
-    
-    	int totalLength = obj.len+length;
-    	long []temp = new long[totalLength];
-		 for(int i=0;i<totalLength;i++) {
-			 if(i<obj.len)
-				 temp[i]=obj.arr[i];
-			 else
-				 temp[i]=0;
-			 
-		 }
-    	return new Num(temp, obj.base);
+	// creates Num obj.arr with length = length + zeroes, by filling zero
+	// returns new Num object
+	private static Num addPadding(Num obj, int zeroes) {
+		int totalLength = obj.len + zeroes;
+		long[] temp = new long[totalLength];
+		for (int i = 0; i < totalLength; i++) {
+			if (i < obj.len)
+				temp[i] = obj.arr[i];
+			else
+				temp[i] = 0;
+
+		}
+		return new Num(temp, obj.base);
     }
 
 	private static Num subtractHelper(Num a, Num b) {
@@ -222,6 +226,7 @@ public class Num  implements Comparable<Num> {
 		return truncate(powerHelper(a, n));
 	}
 
+	// 2^4 = (2*2)^(4/2)
 	public static Num powerHelper(Num a, long n) {
 		if (n == 0) {
 			Num result = new Num(1);
@@ -232,7 +237,9 @@ public class Num  implements Comparable<Num> {
 		} else if (n % 2 == 0) {
 			return powerHelper(product(a, a), n / 2);
 		} else {
+			// if n is odd, do the same till n-1
 			Num bfrResult = powerHelper(product(a, a), (n - 1) / 2);
+			// extra product, final result = a * result
 			return product(a, bfrResult);
 		}
 	}
@@ -271,27 +278,31 @@ public class Num  implements Comparable<Num> {
 		}
     }
 
+	// Checks if a Num object equals to 0
 	private static boolean isZero(Num a) {
 		return ((a.len == 1) && (a.arr[0] == 0));
 	}
+
     // return a%b
 	public static Num mod(Num a, Num b) throws Exception {
 
+		// if base not equal or a modulo 0 is expected or mod of -ve number is expected
 		if (a.base != b.base || isZero(b) || a.isNegative || b.isNegative) {
-			// if base not equal or a modulo 0 is expected
 			throw new java.lang.ArithmeticException();
 		}
 		Num res = new Num(a.arr, a.base);
-		int comapreRes = res.compare(b);
-		if (comapreRes < 0) {
+		int comapreRes = res.absoluteCompare(b);
+		if (comapreRes < 0) { // 2 % 20 = 2
 			return a;
-		} else if (comapreRes == 0) {
-			return new Num(0); // return zero
-		} else {
+		} else if (comapreRes == 0) { // 20 % 20 = 0
+			Num zero = new Num(0);
+			zero.base = a.base;
+			return zero;
+		} else { // 20 % 3 = 20 -3 -3 -3 -3 -3 -3 -3 -3 = -1
 			while (!res.isNegative || isZero(res)) {
 				res = subtract(res, b);
 			}
-			if (res.isNegative) { // as we have done one extra subtract
+			if (res.isNegative) { // as we have done one extra subtract, -1 + 3 = 2
 				res = add(res, b);
 			}
 		}
@@ -302,7 +313,7 @@ public class Num  implements Comparable<Num> {
 	// http://www.ardendertat.com/2012/01/26/programming-interview-questions-27-squareroot-of-a-number/
 	public static Num squareRoot(Num a) throws Exception {
     		if(a.isNegative) {
-    			throw new Exception();
+			throw new ArithmeticException("Cannot find square root of negative number");
     		} 
     		
 		Num zero = new Num(0);
@@ -310,15 +321,16 @@ public class Num  implements Comparable<Num> {
     		Num one = new Num(1);
     		one.base = a.base;
 
+		// Binary search
 		Num low = zero;
 		Num high = add(one, a.by2());
 		Num mid, square;
-		while (add(low, one).compare(high) < 0) {
+		while (add(low, one).absoluteCompare(high) < 0) {
 			mid = add(subtract(high, low).by2(), low);
 			square = power(mid, 2);
-			if (square.compare(a) == 0) {
+			if (square.absoluteCompare(a) == 0) {
 				return mid;
-			} else if (square.compare(a) < 0) {
+			} else if (square.absoluteCompare(a) < 0) {
 				low = mid;
 			} else {
 				high = mid;
@@ -331,7 +343,7 @@ public class Num  implements Comparable<Num> {
     // Utility functions
 
 	// Compares the numbers irrespective of sign - compare absolute of 2 numbers
-	private int compare(Num other) {
+	private int absoluteCompare(Num other) {
 		int size = 0;
 		if (this.len > other.len)
 			return 1;
@@ -395,13 +407,15 @@ public class Num  implements Comparable<Num> {
     
     // Return number to a string in base 10
     public String toString() {
-		Num base10;
+		Num base10 = this;
 		String retString = "";
 		try {
 			if (this.isNegative) {
 				retString = "-";
 			}
-			base10 = this.convertToBase10();
+			if (this.base != 10) {
+				base10 = this.convertToBase10();
+			}
 			for (int i = base10.len - 1; i >= 0; i--) {
 				retString += base10.arr[i] + "";
 			}
@@ -429,7 +443,7 @@ public class Num  implements Comparable<Num> {
 	// Return number equal to "this" number, in base=newBase
 	public Num convertBase(int newBase) throws Exception {
 		Num inBase10 = this;
-		Num inNewbase = this;// = new Num(newNumArr, newBase);
+		Num inNewbase = this;
 		// convert to decimal
 		if (this.base != 10) {
 			inBase10 = this.convertToBase10();
@@ -438,11 +452,14 @@ public class Num  implements Comparable<Num> {
 			int size = (int) Math.ceil(((this.len + 1) / Math.log10(newBase)) + 1);
 			long[] newNumArr = new long[size];
 			inNewbase = new Num(newNumArr, newBase);
+			inNewbase.isNegative = this.isNegative;// if number is negative, converted base will also be negative
+			inBase10.isNegative = false; // as mod of negative is not allowed
 			Num baseObj = new Num(newBase);
 			int i = 0;
 			while (!isZero(inBase10)) {
 				Num theMod = mod(inBase10, baseObj);
 				long numInNewBase = 0;
+				// get the arr after mod as one long number
 				for (int j = 0; j < theMod.len; j++) {
 					numInNewBase = (long) (numInNewBase + theMod.arr[j] * Math.pow(10, j));
 				}
@@ -450,6 +467,7 @@ public class Num  implements Comparable<Num> {
 				inBase10 = divide(inBase10, baseObj);
 				i++;
 			}
+			this.isNegative = inNewbase.isNegative; // preserve isNegative of original object
 		}
 		return truncate(inNewbase); // call truncate here
 	}
@@ -457,13 +475,14 @@ public class Num  implements Comparable<Num> {
 	// Divide by 2, for using in binary search
 	public Num by2() {
 		long[] newNum;
-		if (this.base == 2) { // right shift
+		if (this.base == 2) { // right shift once
 			newNum = new long[this.len - 1];
 			for (int i = 1; i < len; i++) {
 				newNum[i - 1] = this.arr[i];
 			}
 
 		} else {
+			// divide each digit by 2 to get the final number divided by 2
 			newNum = new long[this.len];
 			long carry = 0;
 			for (int i = (this.len - 1); i >= 0; i--) {
@@ -655,9 +674,28 @@ public class Num  implements Comparable<Num> {
 		f1.printList();
 		System.out.println(f1.toString());
 
-		Num g = new Num(45);
-		Num g1 = g.convertBase(16);
+		System.out.println("Convert base and add");
+		Num g = new Num(-1000);
+		Num gg = new Num(12);
+		System.out.println(add(g, gg).toString());
+		Num g1 = g.convertBase(60);
+		g.printList();
 		g1.printList();
+		Num gg1 = gg.convertBase(60);
+		gg1.printList();
+		System.out.println(add(g, gg).toString());
+		System.out.println(add(g1, gg1).toString());
+
+		Num h = new Num(7328);
+		Num hh = h.convertBase(16);
+		System.out.println(squareRoot(hh).toString());
+
+		Num i = new Num(7356);
+		Num ii = i.convertBase(16);
+		Num j = new Num(37);
+		Num jj = j.convertBase(16);
+		System.out.println(divide(i, j).toString());
+		System.out.println(divide(ii, jj).toString());
 
     }
 }
