@@ -309,24 +309,11 @@ public class Num  implements Comparable<Num> {
 		if (a.base != b.base || isZero(b) || a.isNegative || b.isNegative) {
 			throw new java.lang.ArithmeticException();
 		}
-		Num res = new Num(a.arr, a.base);
-		int comapreRes = res.absoluteCompare(b);
-		if (comapreRes < 0) { // 2 % 20 = 2
-			return a;
-		} else if (comapreRes == 0) { // 20 % 20 = 0
-			Num zero = new Num(0);
-			zero.base = a.base;
-			return zero;
-		} else { // 20 % 3 = 20 -3 -3 -3 -3 -3 -3 -3 -3 = -1
-			while (!res.isNegative || isZero(res)) {
-				res = subtract(res, b);
-			}
-			if (res.isNegative) { // as we have done one extra subtract, -1 + 3 = 2 res =
-				res = add(res, b);
-			}
-
-		}
-		return truncate(res);
+		// modulo = number - (divisor * (number / divisor))
+		Num quotient = divide(a, b);
+		Num multiple = product(b, quotient);
+		Num remainder = subtract(a, multiple);
+		return remainder;
     }
 
     // Use binary search
@@ -706,9 +693,11 @@ public class Num  implements Comparable<Num> {
 
 		System.out.println("Mod");
 		Num d = new Num("9999999999999999999999");
-		Num d1 = new Num("36666669999999999999");
+		Num d1 = new Num("36666669");
 		d = mod(d, d1);
 		d.printList();
+		System.out.println(d.toString());
+		System.out.println(new BigInteger("9999999999999999999999").mod(new BigInteger("36666669")));
 
 		System.out.println("Convert base");
 		Num e = new Num(55);
