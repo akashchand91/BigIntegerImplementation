@@ -1,5 +1,6 @@
 package pxp171530;
 
+import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
@@ -326,7 +327,7 @@ public class Num  implements Comparable<Num> {
 		Num high = add(one, a.by2());
 		Num mid, square;
 		while (add(low, one).absoluteCompare(high) < 0) {
-			mid = add(subtract(high, low).by2(), low);
+			mid = add(high, low).by2();
 			square = power(mid, 2);
 			if (square.absoluteCompare(a) == 0) {
 				return mid;
@@ -631,37 +632,52 @@ public class Num  implements Comparable<Num> {
 
 	public static void main(String[] args) throws Exception {
 
+		Num x = new Num("1111111111111111111111111111111");
+		Num y = new Num("22222222222222222222");
+
+		BigInteger big1 = new BigInteger("1111111111111111111111111111111");
+		BigInteger big2 = new BigInteger("22222222222222222222");
+
 		System.out.println("Add");
-		Num x = new Num("1000");
-		Num y = new Num("2");
 		Num z = Num.add(x, y);
-		z.printList();
+		System.out.println(z.toString());
+		System.out.println(big1.add(big2));
+
 		System.out.println("Subtract");
 		Num z1 = subtract(x, y);
-		z1.printList();
+		System.out.println(z1.toString());
+		System.out.println(big1.subtract(big2));
+
 		System.out.println("Power");
 		Num a = Num.power(x, 8);
-		a.printList();
+		System.out.println(a.toString());
+		System.out.println(big1.pow(8));
+
 		System.out.println("Product");
 		Num b = Num.product(x, y);
 		b.printList();
+
 		System.out.println("by2");
 		Num y1 = new Num("999");
 		Num by = y1.by2();
 		by.printList();
+
 		System.out.println("power");
 		Num a1 = new Num(2);
 		a1 = power(a1, 3);
 		a1.printList();
+
 		System.out.println("SquareRoot");
 		Num c = new Num(16);
 		c = squareRoot(c);
 		c.printList();
+
 		System.out.println("Mod");
 		Num d = new Num(19);
 		Num d1 = new Num(3);
 		d = mod(d, d1);
 		d.printList();
+
 		System.out.println("Convert base");
 		Num e = new Num(55);
 		Num e1 = e.convertBase(2);
@@ -686,10 +702,12 @@ public class Num  implements Comparable<Num> {
 		System.out.println(add(g, gg).toString());
 		System.out.println(add(g1, gg1).toString());
 
+		System.out.println("Convert base and sqrt");
 		Num h = new Num(7328);
 		Num hh = h.convertBase(16);
 		System.out.println(squareRoot(hh).toString());
 
+		System.out.println("Convert base and divide");
 		Num i = new Num(7356);
 		Num ii = i.convertBase(16);
 		Num j = new Num(37);
