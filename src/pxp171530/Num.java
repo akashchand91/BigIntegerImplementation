@@ -76,7 +76,7 @@ public class Num  implements Comparable<Num> {
 		Num result;
 		if (a.isNegative != b.isNegative) { // case b-a & a-b
 
-			if (a.compare(b) > 0) {
+			if (a.absoluteCompare(b) > 0) {
 				if(a.len > b.len) { // if the arrays are of different sizes
 		    		 Num paddedB = addPadding(b, a.len-b.len);
 		    		 result = subtractHelper(a, paddedB);
@@ -318,15 +318,11 @@ public class Num  implements Comparable<Num> {
 			zero.base = a.base;
 			return zero;
 		} else { // 20 % 3 = 20 -3 -3 -3 -3 -3 -3 -3 -3 = -1
-			/*
-			 * do { res = subtract(res, b); } while (res.compareTo(b) >= 0);
-			 */
-
 			while (!res.isNegative || isZero(res)) {
 				res = subtract(res, b);
 			}
 			if (res.isNegative) { // as we have done one extra subtract, -1 + 3 = 2 res =
-				add(res, b);
+				res = add(res, b);
 			}
 
 		}
@@ -749,6 +745,7 @@ public class Num  implements Comparable<Num> {
 		Num j = new Num(37);
 		Num jj = j.convertBase(16);
 		System.out.println(divide(i, j).toString());
+		divide(ii, jj).printList();
 		System.out.println(divide(ii, jj).toString());
 
     }
