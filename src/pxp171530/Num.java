@@ -300,12 +300,17 @@ public class Num  implements Comparable<Num> {
 			zero.base = a.base;
 			return zero;
 		} else { // 20 % 3 = 20 -3 -3 -3 -3 -3 -3 -3 -3 = -1
+			/*
+			 * do { res = subtract(res, b); } while (res.compareTo(b) >= 0);
+			 */
+
 			while (!res.isNegative || isZero(res)) {
 				res = subtract(res, b);
 			}
-			if (res.isNegative) { // as we have done one extra subtract, -1 + 3 = 2
-				res = add(res, b);
+			if (res.isNegative) { // as we have done one extra subtract, -1 + 3 = 2 res =
+				add(res, b);
 			}
+
 		}
 		return truncate(res);
     }
@@ -632,11 +637,11 @@ public class Num  implements Comparable<Num> {
 
 	public static void main(String[] args) throws Exception {
 
-		Num x = new Num("1111111111111111111111111111111");
-		Num y = new Num("22222222222222222222");
+		Num x = new Num("36666669999999999999");
+		Num y = new Num("272");
 
-		BigInteger big1 = new BigInteger("1111111111111111111111111111111");
-		BigInteger big2 = new BigInteger("22222222222222222222");
+		BigInteger big1 = new BigInteger("36666669999999999999");
+		BigInteger big2 = new BigInteger("272");
 
 		System.out.println("Add");
 		Num z = Num.add(x, y);
@@ -656,6 +661,8 @@ public class Num  implements Comparable<Num> {
 		System.out.println("Product");
 		Num b = Num.product(x, y);
 		b.printList();
+		System.out.println(b.toString());
+		System.out.println(big1.multiply(big2));
 
 		System.out.println("by2");
 		Num y1 = new Num("999");
@@ -673,8 +680,8 @@ public class Num  implements Comparable<Num> {
 		c.printList();
 
 		System.out.println("Mod");
-		Num d = new Num(19);
-		Num d1 = new Num(3);
+		Num d = new Num("9999999999999999999999");
+		Num d1 = new Num("36666669999999999999");
 		d = mod(d, d1);
 		d.printList();
 
