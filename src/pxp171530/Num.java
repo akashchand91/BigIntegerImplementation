@@ -619,29 +619,35 @@ public class Num  implements Comparable<Num> {
 
 	private static boolean comparePrecedence(String op1, String op2) {
 		//if op1 has a higher precedence than op2
+		// Assumed orderof precedence (from higher to lower)- ^,%,/,*,+,-
 		switch(op1) {
 			case "+":
 			if (op2 == "(" || op2 == "$" || op2 == "+")
 				return true;
-			if (op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^")
+			if (op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^" || op2 == "%")
 				return false;
 			case "-":
 			if (op2 == "(" || op2 == "$" || op2 == "-")
 				return true;
-			if (op2 == "+" || op2 == "*" || op2 == "/" || op2 == "^")
+			if (op2 == "+" || op2 == "*" || op2 == "/" || op2 == "^" || op2 == "%")
 				return false;
 			case "*":
 			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*")
 				return true;
-			if (op2 == "/" || op2 == "^")
+			if (op2 == "/" || op2 == "^" || op2 == "%")
 				return false;
 			case "/":
 			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*" || op2 == "/")
 				return true;
-			if (op2 == "^")
+			if (op2 == "^" || op2 == "%")
+				return false;
+			case "%":
+			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^" )
+				return true;
+			if(op2 == "^")
 				return false;
 			case "^":
-			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^")
+			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^" || op2 == "%")
 				return true;
 		}
 		return false;
@@ -740,5 +746,7 @@ public class Num  implements Comparable<Num> {
 		String[] inf = { "24", "+", "30", "/", "(", "15", "%", "6", ")", "+", "20", "-", "70" };
 		System.out.println(evaluateInfix(inf).toString());
 
+		String[] inf1 = { "24", "+", "-30", "/", "(", "15", "%", "6", ")", "*", "20", "-", "70" };
+		System.out.println(evaluateInfix(inf1).toString());
     }
 }
