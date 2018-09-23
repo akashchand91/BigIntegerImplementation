@@ -76,7 +76,7 @@ public class Num  implements Comparable<Num> {
 		Num result;
 		if (a.isNegative != b.isNegative) { // case b-a & a-b
 
-			if (a.compare(b) > 0) {
+			if (a.absoluteCompare(b) > 0) {
 				if(a.len > b.len) { // if the arrays are of different sizes
 		    		 Num paddedB = addPadding(b, a.len-b.len);
 		    		 result = subtractHelper(a, paddedB);
@@ -309,23 +309,11 @@ public class Num  implements Comparable<Num> {
 		if (a.base != b.base || isZero(b) || a.isNegative || b.isNegative) {
 			throw new java.lang.ArithmeticException();
 		}
-		Num res = new Num(a.arr, a.base);
-		int comapreRes = res.absoluteCompare(b);
-		if (comapreRes < 0) { // 2 % 20 = 2
-			return a;
-		} else if (comapreRes == 0) { // 20 % 20 = 0
-			Num zero = new Num(0);
-			zero.base = a.base;
-			return zero;
-		} else { // 20 % 3 = 20 -3 -3 -3 -3 -3 -3 -3 -3 = -1
-			while (!res.isNegative || isZero(res)) {
-				res = subtract(res, b);
-			}
-			if (res.isNegative) { // as we have done one extra subtract, -1 + 3 = 2
-				res = add(res, b);
-			}
-		}
-		return truncate(res);
+		// modulo = number - (divisor * (number / divisor))
+		Num quotient = divide(a, b);
+		Num multiple = product(b, quotient);
+		Num remainder = subtract(a, multiple);
+		return remainder;
     }
 
     // Use binary search
@@ -667,11 +655,11 @@ public class Num  implements Comparable<Num> {
 
 	public static void main(String[] args) throws Exception {
 
-		Num x = new Num("1111111111111111111111111111111");
-		Num y = new Num("22222222222222222222");
+		Num x = new Num("36666669999999999999");
+		Num y = new Num("272");
 
-		BigInteger big1 = new BigInteger("1111111111111111111111111111111");
-		BigInteger big2 = new BigInteger("22222222222222222222");
+		BigInteger big1 = new BigInteger("36666669999999999999");
+		BigInteger big2 = new BigInteger("272");
 
 		System.out.println("Add");
 		Num z = Num.add(x, y);
@@ -691,6 +679,8 @@ public class Num  implements Comparable<Num> {
 		System.out.println("Product");
 		Num b = Num.product(x, y);
 		b.printList();
+		System.out.println(b.toString());
+		System.out.println(big1.multiply(big2));
 
 		System.out.println("by2");
 		Num y1 = new Num("999");
@@ -708,10 +698,12 @@ public class Num  implements Comparable<Num> {
 		c.printList();
 
 		System.out.println("Mod");
-		Num d = new Num(19);
-		Num d1 = new Num(3);
+		Num d = new Num("9999999999999999999999");
+		Num d1 = new Num("36666669");
 		d = mod(d, d1);
 		d.printList();
+		System.out.println(d.toString());
+		System.out.println(new BigInteger("9999999999999999999999").mod(new BigInteger("36666669")));
 
 		System.out.println("Convert base");
 		Num e = new Num(55);
@@ -748,6 +740,7 @@ public class Num  implements Comparable<Num> {
 		Num j = new Num(37);
 		Num jj = j.convertBase(16);
 		System.out.println(divide(i, j).toString());
+		divide(ii, jj).printList();
 		System.out.println(divide(ii, jj).toString());
 
     }
