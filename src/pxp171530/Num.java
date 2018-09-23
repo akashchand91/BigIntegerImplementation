@@ -285,7 +285,7 @@ public class Num  implements Comparable<Num> {
 		return truncate(powerHelper(a, n));
 	}
 
-	// 2^4 = (2*2)^(4/2)
+	// 2^4 = (2*2)^(4/2) - only log n calls to product
 	public static Num powerHelper(Num a, long n) {
 		if (n == 0) {
 			Num result = new Num(1);
@@ -305,37 +305,37 @@ public class Num  implements Comparable<Num> {
 
     // Use binary search to calculate a/b
     public static Num divide(Num a, Num b) {
-    	Num zero = new Num(0);
-    	long base = a.base();
-    	zero.base = base;
-    	if(a.base!=b.base)
-    		throw new ArithmeticException("Base of the two numbers need to be equal!!");
-    	if (isZero(b)) {
-			throw new ArithmeticException("Divide by zero");
+		Num zero = new Num(0);
+		long base = a.base();
+		zero.base = base;
+		if (a.base != b.base)
+			throw new ArithmeticException("Base of the two numbers need to be equal!!");
+
+		if (isZero(b)) {
+			return null;
 		}
-     	Num left = zero;
+		Num left = zero;
 		Num right = a;
 		Num res = zero;
-		boolean isNegative= false;
-		Num comparision = new Num(b.arr,b.base);
+		boolean isNegative = false;
+		Num comparision = new Num(b.arr, b.base);
 		comparision.isNegative = true;
-		//setting the sign of the result
-		if((a.isNegative == b.isNegative) ){
+		// setting the sign of the result
+		if ((a.isNegative == b.isNegative)) {
 			isNegative = false;
+		} else if (a.isNegative != b.isNegative) {
+			isNegative = true;
 		}
-		else if(a.isNegative != b.isNegative ){
-			isNegative=true;
-		}
-		//taking absolute value of a and b
-		a.isNegative=false;
-		b.isNegative=false;
+		// taking absolute value of a and b
+		a.isNegative = false;
+		b.isNegative = false;
 		while (true) {
 			Num mid = add(right, left).by2();
-			Num prod= product(b, mid);
-			Num diff = subtract(prod,a);
-			//the difference should be between zero and the negative of the dividend
-			//for the mid to be the quotient
-			if (diff.compareTo(zero) <=0 && diff.compareTo(comparision)>0) {
+			Num prod = product(b, mid);
+			Num diff = subtract(prod, a);
+			// the difference should be between zero and the negative of the dividend
+			// for the mid to be the quotient
+			if (diff.compareTo(zero) <= 0 && diff.compareTo(comparision) > 0) {
 				res = mid;
 				res.isNegative = isNegative;
 				return truncate(res);
@@ -358,8 +358,12 @@ public class Num  implements Comparable<Num> {
 	public static Num mod(Num a, Num b) throws Exception {
 
 		// if base not equal or a modulo 0 is expected or mod of -ve number is expected
-		if (a.base != b.base || isZero(b) || a.isNegative || b.isNegative) {
+		if (a.base != b.base || a.isNegative || b.isNegative) {
 			throw new java.lang.ArithmeticException();
+		}
+
+		if (isZero(b)) {
+			return null;
 		}
 		// modulo = number - (divisor * (number / divisor))
 		Num quotient = divide(a, b);
@@ -372,7 +376,7 @@ public class Num  implements Comparable<Num> {
 	// http://www.ardendertat.com/2012/01/26/programming-interview-questions-27-squareroot-of-a-number/
 	public static Num squareRoot(Num a) throws Exception {
     		if(a.isNegative) {
-			throw new ArithmeticException("Cannot find square root of negative number");
+			return null;
     		} 
     		
 		Num zero = new Num(0);
@@ -477,7 +481,7 @@ public class Num  implements Comparable<Num> {
     
     // Return number to a string in base 10
     public String toString() {
-		Num base10 = this;
+		Num base10 = truncate(this);
 		String retString = "";
 		try {
 			if (this.isNegative) {
@@ -798,5 +802,12 @@ public class Num  implements Comparable<Num> {
 
 		Num xx = new Num("08");
 		System.out.println(divide(xx, xx).toString());
+
+		Num xx1 = new Num("0");
+		System.out.println(squareRoot(xx1).toString());
+
+		Num xy = new Num("00008");
+		System.out.println(xy.toString());
+
     }
 }
