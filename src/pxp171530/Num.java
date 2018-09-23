@@ -769,5 +769,9 @@ public class Num  implements Comparable<Num> {
 
 		String[] inf3 = { "24", "+", "30", "/", "15", "%", "6", "*", "20", "-", "70" };
 		System.out.println(evaluateInfix(inf3).toString());
+		
+		String[] inf4 = { "(", "24", "+", "30", ")", "/", "15", "%", "6", "*", "20", "-", "70" };
+		System.out.println(evaluateInfix(inf4).toString());
+
     }
 }
