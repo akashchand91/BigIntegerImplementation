@@ -746,7 +746,13 @@ public class Num  implements Comparable<Num> {
 		String[] inf = { "24", "+", "30", "/", "(", "15", "%", "6", ")", "+", "20", "-", "70" };
 		System.out.println(evaluateInfix(inf).toString());
 
-		String[] inf1 = { "24", "+", "-30", "/", "(", "15", "%", "6", ")", "*", "20", "-", "70" };
+		String[] inf1 = { "24", "*", "30", "/", "(", "15", "%", "6", ")", "*", "20", "-", "70" };
 		System.out.println(evaluateInfix(inf1).toString());
+
+		String[] inf2 = { "(", "24", "*", "30", ")", "/", "15", "%", "6", "*", "20", "-", "70" };
+		System.out.println(evaluateInfix(inf2).toString());
+
+		String[] inf3 = { "24", "+", "30", "/", "15", "%", "6", "*", "20", "-", "70" };
+		System.out.println(evaluateInfix(inf3).toString());
     }
 }
