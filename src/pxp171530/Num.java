@@ -737,5 +737,8 @@ public class Num  implements Comparable<Num> {
 		divide(ii, jj).printList();
 		System.out.println(divide(ii, jj).toString());
 
+		String[] inf = { "24", "+", "30", "/", "(", "15", "%", "6", ")", "+", "20", "-", "70" };
+		System.out.println(evaluateInfix(inf).toString());
+
     }
 }
