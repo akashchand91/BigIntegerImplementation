@@ -10,12 +10,26 @@ import java.util.Stack;
 
 public class Num  implements Comparable<Num> {
 
+	private static HashMap<String, Integer> precedenceMap; //keeping track of the operator precedences
     static long defaultBase = 10;  // Change as needed
     long base = defaultBase;  // Change as needed
     long[] arr;  // array to store arbitrarily large integers
     boolean isNegative;  // boolean flag to represent negative numbers
     int len;  // actual number of elements of array that are used;  number is stored in arr[0..len-1]
 
+    static {
+    	precedenceMap = new HashMap<>();
+    	precedenceMap.put("$", 0);
+    	precedenceMap.put("(", 1);
+    	precedenceMap.put("+", 2);
+    	precedenceMap.put("-", 2);
+    	precedenceMap.put("*", 3);
+    	precedenceMap.put("/", 3);
+    	precedenceMap.put("%", 3);
+    	precedenceMap.put("^", 4);
+    	
+    }
+    
     public Num(String s) {
 		// handle negative
 		if (s.charAt(0) == '-') {
@@ -627,38 +641,10 @@ public class Num  implements Comparable<Num> {
 
 	private static boolean comparePrecedence(String op1, String op2) {
 		//if op1 has a higher precedence than op2
-		// orderof precedence (from higher to lower)- ^,(%,/,*),(+,-)
-		switch(op1) {
-			case "+":
-			if (op2 == "(" || op2 == "$" || op2 == "+")
-				return true;
-			if (op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^" || op2 == "%")
-				return false;
-			case "-":
-			if (op2 == "(" || op2 == "$" || op2 == "-")
-				return true;
-			if (op2 == "+" || op2 == "*" || op2 == "/" || op2 == "^" || op2 == "%")
-				return false;
-			case "*":
-			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*")
-				return true;
-			if (op2 == "/" || op2 == "^" || op2 == "%")
-				return false;
-			case "/":
-			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" ||  op2 == "/")
-				return true;
-			if (op2 == "*" ||op2 == "^" || op2 == "%")
-				return false;
-			case "%":
-			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*"  || op2 == "^" || op2 == "%" )
-				return true;
-			if(op2 == "*" ||op2 == "^" || op2 == "/")
-				return false;
-			case "^":
-			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^" || op2 == "%")
-				return true;
-		}
-		return false;
+		if(precedenceMap.get(op1)>precedenceMap.get(op2))
+			return true;
+		else
+			return false;
 	}
 
 	public static void main(String[] args) throws Exception {
