@@ -625,7 +625,7 @@ public class Num  implements Comparable<Num> {
 
 	private static boolean comparePrecedence(String op1, String op2) {
 		//if op1 has a higher precedence than op2
-		// Assumed orderof precedence (from higher to lower)- ^,%,/,*,+,-
+		// orderof precedence (from higher to lower)- ^,(%,/,*),(+,-)
 		switch(op1) {
 			case "+":
 			if (op2 == "(" || op2 == "$" || op2 == "+")
@@ -643,14 +643,14 @@ public class Num  implements Comparable<Num> {
 			if (op2 == "/" || op2 == "^" || op2 == "%")
 				return false;
 			case "/":
-			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*" || op2 == "/")
+			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" ||  op2 == "/")
 				return true;
-			if (op2 == "^" || op2 == "%")
+			if (op2 == "*" ||op2 == "^" || op2 == "%")
 				return false;
 			case "%":
-			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^" )
+			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*"  || op2 == "^" || op2 == "%" )
 				return true;
-			if(op2 == "^")
+			if(op2 == "*" ||op2 == "^" || op2 == "/")
 				return false;
 			case "^":
 			if (op2 == "(" || op2 == "$" || op2 == "+" || op2 == "-" || op2 == "*" || op2 == "/" || op2 == "^" || op2 == "%")
