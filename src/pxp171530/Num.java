@@ -615,6 +615,8 @@ public class Num  implements Comparable<Num> {
 			
 	}
 
+	// Unary - is not supported and checked, so we check if if a number is 0 or >0
+	// Ex: 08 does not qualify as a number, enter 8 instead
 	private static boolean isNumber(String token) {
 		String regex = "[1-9][0-9]*";
 		if (token.matches(regex) || token.equals("0")) {
@@ -770,8 +772,10 @@ public class Num  implements Comparable<Num> {
 		String[] inf3 = { "24", "+", "30", "/", "15", "%", "6", "*", "20", "-", "70" };
 		System.out.println(evaluateInfix(inf3).toString());
 		
-		String[] inf4 = { "(", "24", "+", "30", ")", "/", "15", "%", "6", "*", "20", "-", "70" };
+		String[] inf4 = { "(", "5", "+", "40", ")", "/", "15", "%", "6", "*", "20", "-", "70" };
 		System.out.println(evaluateInfix(inf4).toString());
 
+		Num xx = new Num("08");
+		System.out.println(divide(xx, xx).toString());
     }
 }
