@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
@@ -18,16 +19,15 @@ public class Num  implements Comparable<Num> {
     int len;  // actual number of elements of array that are used;  number is stored in arr[0..len-1]
 
     static {
-    	precedenceMap = new HashMap<>();
-    	precedenceMap.put("$", 0);
-    	precedenceMap.put("(", 1);
-    	precedenceMap.put("+", 2);
-    	precedenceMap.put("-", 2);
-    	precedenceMap.put("*", 3);
-    	precedenceMap.put("/", 3);
-    	precedenceMap.put("%", 3);
-    	precedenceMap.put("^", 4);
-    	
+		precedenceMap = new HashMap<>();
+		precedenceMap.put("$", 0);
+		precedenceMap.put("(", 1);
+		precedenceMap.put("+", 2);
+		precedenceMap.put("-", 2);
+		precedenceMap.put("*", 3);
+		precedenceMap.put("/", 3);
+		precedenceMap.put("%", 3);
+		precedenceMap.put("^", 4);
     }
     
     public Num(String s) {
@@ -85,7 +85,12 @@ public class Num  implements Comparable<Num> {
 		return a;
 	}
 
-	// Num a + b
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @return a+b
+	 */
     public static Num add(Num a, Num b) { 
 		Num result;
 		if (a.isNegative != b.isNegative) { // case b-a & a-b
@@ -93,28 +98,33 @@ public class Num  implements Comparable<Num> {
 			if (a.absoluteCompare(b) > 0) {
 				if(a.len > b.len) { // if the arrays are of different sizes
 		    		 Num paddedB = addPadding(b, a.len-b.len);
-		    		 result = subtractHelper(a, paddedB);
+		    		 result = unsignedSubtract(a, paddedB);
 				}else {
-				result = subtractHelper(a, b);
+				result = unsignedSubtract(a, b);
 				}
 				result.isNegative = a.isNegative;
 			} else {
 				if(b.len > a.len) { // if the arrays are of different sizes
 		    		 Num paddedA = addPadding(a, b.len-a.len);
-		    		 result = subtractHelper(b, paddedA);
+		    		 result = unsignedSubtract(b, paddedA);
 				}else
-					result = subtractHelper(b, a);
+					result = unsignedSubtract(b, a);
 				result.isNegative = b.isNegative;
 			}
 		} else {
-			result = addHelper(a, b);
+			result = unsignedAdd(a, b);
 			result.isNegative = a.isNegative;
 		}
 		return truncate(result);
     }
 
-	private static Num addHelper(Num a, Num b) {
-
+    /**
+     * 
+     * @param a-is a positive number
+     * @param b-is a positive number
+     * @return a + b 
+     */
+	private static Num unsignedAdd(Num a, Num b) {
 		Num result;
 		int size = a.len > b.len ? a.len + 1 : b.len + 1;
 
@@ -148,10 +158,16 @@ public class Num  implements Comparable<Num> {
 		return truncate(result);
 	}
 
-	    public static Num subtract(Num a, Num b) {// a-b
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @return a + b
+	 */
+	public static Num subtract(Num a, Num b) {// a-b
 		Num result;
 		if (a.isNegative != b.isNegative) { // if a and b are of different signs
-			result = Num.addHelper(a, b); // result isNegative is false- when b is negative.
+			result = Num.unsignedAdd(a, b); // result isNegative is false- when b is negative.
 			if (a.isNegative) {// case -a-b
 				result.isNegative = true;
 			} else {
@@ -160,16 +176,16 @@ public class Num  implements Comparable<Num> {
 		} else if (a.compareTo(b) >= 0) { // take care of cases where a=999 and b = 8999
 			if (a.len > b.len) {
 				Num paddedB = addPadding(b, a.len - b.len);
-				result = subtractHelper(a, paddedB);
+				result = unsignedSubtract(a, paddedB);
 			} else {
-				result = subtractHelper(a, b);
+				result = unsignedSubtract(a, b);
 			}
 		} else {
 			if (b.len > a.len) {
 				Num paddedA = addPadding(a, b.len - a.len);
-				result = subtractHelper(b, paddedA);
+				result = unsignedSubtract(b, paddedA);
 			} else
-				result = subtractHelper(b, a);
+				result = unsignedSubtract(b, a);
 			result.isNegative = true;
 		}
 		return truncate(result);
@@ -190,7 +206,13 @@ public class Num  implements Comparable<Num> {
 		return new Num(temp, obj.base);
     }
 
-	private static Num subtractHelper(Num a, Num b) { //Assumes a and b contain equal sized arrays-> performs a-b
+    /**
+     * 
+     * @param a-is a positive number
+     * @param b-is a positive number
+     * @return a - b 
+     */
+	private static Num unsignedSubtract(Num a, Num b) { //Assumes a and b contain equal sized arrays-> performs a-b
 		int size = a.len > b.len ? a.len : b.len;
 		Num result;
 		long[] resultArr = new long[size];
@@ -218,7 +240,16 @@ public class Num  implements Comparable<Num> {
 		return truncate(result);
 	}
 
+	/**
+	 * @param a
+	 * @param b
+	 * @return a * b
+	 */
     public static Num product(Num a, Num b) {
+		// An array parr is maintained to store the result. Products of each digit in b
+		// with a is added and stored in parr. The carrySum and carryProd variables are
+		// used to store the carry value while performing addition and multiplication
+		// respectively.
     	long carryProd = 0, carrySum = 0,val1,val2;
 		long[] parr = new long[a.len+b.len];
 		
@@ -226,9 +257,12 @@ public class Num  implements Comparable<Num> {
 			for(int n = 0;n<a.len;n++) {
 				val1 = ((b.arr[m]*a.arr[n]+carryProd)%a.base);
 				carryProd = (b.arr[m]*a.arr[n]+carryProd)/a.base;
-				val2 = parr[m+n]+val1+carrySum;
+				val2 = parr[m + n] + val1 + carrySum;// adding the products
 				parr[m+n] = val2%a.base;
 				carrySum = val2/a.base;
+				// Once all the digits in a are covered, we add the carrySum and carryProd to
+				// the product value and reassign carrySum and carryProd as 0. This is done for
+				// each digit in b.
 				if(n==a.len-1) {
 					parr[m+n+1] = parr[m+n+1] + carryProd + carrySum;
 					carrySum = 0;
@@ -320,6 +354,7 @@ public class Num  implements Comparable<Num> {
 	}
 
     // return a%b
+	// https://www.geeksforgeeks.org/program-to-find-remainder-without-using-modulo-or-operator/
 	public static Num mod(Num a, Num b) throws Exception {
 
 		// if base not equal or a modulo 0 is expected or mod of -ve number is expected
@@ -641,10 +676,10 @@ public class Num  implements Comparable<Num> {
 
 	private static boolean comparePrecedence(String op1, String op2) {
 		//if op1 has a higher precedence than op2
-		if(precedenceMap.get(op1)>precedenceMap.get(op2))
+		if (precedenceMap.get(op1) > precedenceMap.get(op2)) {
 			return true;
-		else
-			return false;
+		}
+		return false;
 	}
 
 	public static void main(String[] args) throws Exception {
