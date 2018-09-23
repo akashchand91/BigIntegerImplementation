@@ -271,19 +271,22 @@ public class Num  implements Comparable<Num> {
 		boolean isNegative= false;
 		Num comparision = new Num(b.arr,b.base);
 		comparision.isNegative = true;
+		//setting the sign of the result
 		if((a.isNegative == b.isNegative) ){
 			isNegative = false;
 		}
 		else if(a.isNegative != b.isNegative ){
 			isNegative=true;
-			
 		}
+		//taking absolute value of a and b
 		a.isNegative=false;
 		b.isNegative=false;
 		while (true) {
 			Num mid = add(right, left).by2();
 			Num prod= product(b, mid);
 			Num diff = subtract(prod,a);
+			//the difference should be between zero and the negative of the dividend
+			//for the mid to be the quotient
 			if (diff.compareTo(zero) <=0 && diff.compareTo(comparision)>0) {
 				res = mid;
 				res.isNegative = isNegative;
@@ -527,26 +530,29 @@ public class Num  implements Comparable<Num> {
 			} else {
 				String op1 = stack.pop();
 				String op2 = stack.pop();
+				Num oper1 = new Num(op1);
+				Num oper2 = new Num(op2);
 				String op = expr[i];
 				i++;
+				//mod,subtract and divide are asymetric operations
 				switch (op) {
 				case "+":
-					res = add(new Num(op1), new Num(op2));
+					res = add(oper1,oper2);
 					break;
 				case "-":
-					res = subtract(new Num(op2), new Num(op1));
+					res = subtract(oper2,oper1);
 					break;
 				case "*":
-					res = product(new Num(op1), new Num(op2));
+					res = product(oper1,oper2);
 					break;
 				case "/":
-					res = divide(new Num(op2), new Num(op1));
+					res = divide(oper2, oper1);
 					break;
 				case "%":
-					res = mod(new Num(op2), new Num(op1));
+					res = mod(oper2, oper1);
 					break;
 				case "^":
-					res = power(new Num(op1), Long.parseLong(op2));
+					res = power(oper1, Long.parseLong(op2));
 					break;
 				default:
 					res = null;
@@ -681,6 +687,11 @@ public class Num  implements Comparable<Num> {
 		b.printList();
 		System.out.println(b.toString());
 		System.out.println(big1.multiply(big2));
+		
+		System.out.println("Divide");
+		Num m = Num.divide(x, y);
+		System.out.println(m);
+		
 
 		System.out.println("by2");
 		Num y1 = new Num("999");
@@ -742,6 +753,10 @@ public class Num  implements Comparable<Num> {
 		System.out.println(divide(i, j).toString());
 		divide(ii, jj).printList();
 		System.out.println(divide(ii, jj).toString());
+		
+		System.out.println("Evaluate Infix expression");
+		String []expr = {"(","2","+","3","*","5","*","6",")","+","7","*","8","/","4","+","19","/","29","%","3"}; 
+		System.out.println(Num.evaluateInfix(expr));
 
 		String[] inf = { "24", "+", "30", "/", "(", "15", "%", "6", ")", "+", "20", "-", "70" };
 		System.out.println(evaluateInfix(inf).toString());
