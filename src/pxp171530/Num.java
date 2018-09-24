@@ -15,21 +15,21 @@ import java.util.Stack;
  * @author deeksha lakshmeesh mestha - dxm172630
  * @author sneha hulivan girisha - sxh173730
  * @author akash chand - axc173730
- *
+ * Num class stores and performs arithmetic operations on arbitrarily large integers
  */
 
-// Num class stores and performs arithmetic operations on arbitrarily large integers
+
 public class Num  implements Comparable<Num> {
 
 	private static HashMap<String, Integer> precedenceMap; //keeping track of the operator precedences
-    static long defaultBase = 10;  // Change as needed
-    long base = defaultBase;  // Change as needed
+    static long defaultBase = 10;
+    long base = defaultBase;
     long[] arr;  // array to store arbitrarily large integers
     boolean isNegative;  // boolean flag to represent negative numbers
     int len;  // actual number of elements of array that are used;  number is stored in arr[0..len-1]
 
     static {
-		precedenceMap = new HashMap<>();
+		precedenceMap = new HashMap<>();//hash map to store operators with their precedence values
 		precedenceMap.put("$", 0);
 		precedenceMap.put("(", 1);
 		precedenceMap.put("+", 2);
@@ -40,7 +40,10 @@ public class Num  implements Comparable<Num> {
 		precedenceMap.put("^", 4);
     }
     
-	// constructor to create Num object given a string containing a number
+    /**
+     * constructor to create Num object given a string containing a number
+     * @param s
+     */
     public Num(String s) {
 		// handle negative
 		if (s.charAt(0) == '-') {
@@ -55,21 +58,34 @@ public class Num  implements Comparable<Num> {
 		}
     }
 
-	// constructor for creating Num object given a long[] in specified base
-	// consumer should handle negative later
+	 
+    /**
+     * constructor for creating Num object given a long[] in specified base
+     * consumer should handle negative later
+     * @param arr
+     * @param base
+     */
     private Num(long arr[], long base) {
 		this.arr = arr;
 		this.base = base;
 		this.len = arr.length;
     }
 
-	// constructor to create Num object given a long
+	
+    /**
+     * constructor to create Num object given a long
+     * @param x
+     */
     public Num(long x) {
 		this(String.valueOf(x));
     }
 
-	// deletes the leading zeroes for a number(or trailing zeroes in the arr) and
-	// returns a new array
+	
+    /**
+     * deletes the leading zeroes for a number(or trailing zeroes in the arr)
+     * @param arr
+     * @return a long array with trailing zeroes removed.
+     */
     private static long[] truncate(long arr[]) {
 		int length = arr.length;
 		boolean isZero = true;
@@ -89,7 +105,12 @@ public class Num  implements Comparable<Num> {
 		return isZero ? Arrays.copyOfRange(arr, 0, 1) : arr;
     }
 
-	// deletes the trailing zeroes of a Num object and updates len
+
+    /**
+     * deletes the trailing zeroes of a Num object and updates len
+     * @param a
+     * @return a
+     */
 	private static Num truncate(Num a) {
 		a.arr = truncate(a.arr);
 		a.len = a.arr.length;
@@ -97,10 +118,10 @@ public class Num  implements Comparable<Num> {
 	}
 
 	/**
-	 * 
+	 * adds two numbers a and b by calling unsignedSubtract or unsignedAdd as needed(based on the signs of the numbers).
 	 * @param a
 	 * @param b
-	 * @return a+b
+	 * @return Num obj a+b
 	 */
     public static Num add(Num a, Num b) { 
 		Num result;
@@ -130,10 +151,11 @@ public class Num  implements Comparable<Num> {
     }
 
     /**
-     * 
+     * Adds a and b digit by digit.
+     * Base of a and b are same.
      * @param a-is a positive number
      * @param b-is a positive number
-     * @return a + b 
+     * @return Num obj a + b 
      */
 	private static Num unsignedAdd(Num a, Num b) {
 		Num result;
@@ -170,10 +192,10 @@ public class Num  implements Comparable<Num> {
 	}
 
 	/**
-	 * 
+	 * subtracts b from a by calling unsignedSubtract or unsignedAdd as needed(based on the signs of the numbers).
 	 * @param a
 	 * @param b
-	 * @return a + b
+	 * @return Num obj a - b
 	 */
 	public static Num subtract(Num a, Num b) {// a-b
 		Num result;
@@ -202,8 +224,12 @@ public class Num  implements Comparable<Num> {
 		return truncate(result);
 	}
 
-	// creates Num obj.arr with length = length + zeroes, by filling zero
-	// returns new Num object
+	/**
+	 * creates Num obj.arr with length = length + zeroes, by filling zero.
+	 * @param obj
+	 * @param zeroes
+	 * @return Num obj with zeroes padded to it.
+	 */
 	private static Num addPadding(Num obj, int zeroes) {
 		int totalLength = obj.len + zeroes;
 		long[] temp = new long[totalLength];
@@ -218,10 +244,11 @@ public class Num  implements Comparable<Num> {
     }
 
     /**
-     * 
+     * Subtracts b from a digit by digit.
+     * base of a and b are same.
      * @param a-is a positive number
      * @param b-is a positive number
-     * @return a - b 
+     * @return Num obj a - b 
      */
 	private static Num unsignedSubtract(Num a, Num b) { //Assumes a and b contain equal sized arrays-> performs a-b
 		int size = a.len > b.len ? a.len : b.len;
@@ -252,9 +279,11 @@ public class Num  implements Comparable<Num> {
 	}
 
 	/**
+	 * Computes product of a and b. Negative sign is assigned to the product if needed.
+	 * base of a and b are same.
 	 * @param a
 	 * @param b
-	 * @return a * b
+	 * @return Num obj a * b
 	 */
     public static Num product(Num a, Num b) {
 		// An array parr is maintained to store the result. Products of each digit in b
@@ -282,6 +311,7 @@ public class Num  implements Comparable<Num> {
 			}
 		}
 		Num result = new Num(parr,a.base);
+		//updating isNegative flag as needed.
 		if((a.isNegative && b.isNegative) || (!a.isNegative && !b.isNegative)) {
 			result.isNegative = false;
 		}else
@@ -291,12 +321,23 @@ public class Num  implements Comparable<Num> {
 		return truncate(result);
     }
 
-    // Use divide and conquer
+    /**
+     * Calculates nth power of the number a by calling powerHelper method.
+     * Uses divide and conquer
+     * @param a
+     * @param n
+     * @return Num object a^n
+     */
     public static Num power(Num a, long n) {
 		return truncate(powerHelper(a, n));
 	}
 
-	// 2^4 = (2*2)^(4/2) - only log n calls to product
+	/**
+	 * 2^4 = (2*2)^(4/2) - only log n calls to product
+	 * @param a
+	 * @param n
+	 * @return Num obj a^n
+	 */
 	public static Num powerHelper(Num a, long n) {
 		if (n == 0) {
 			Num result = new Num(1);
@@ -314,7 +355,13 @@ public class Num  implements Comparable<Num> {
 		}
 	}
 
-    // Use binary search to calculate a/b
+
+	/**
+	 * Divides a by b using binary search approach
+	 * @param a
+	 * @param b
+	 * @return Num obj a/b
+	 */
     public static Num divide(Num a, Num b) {
 		Num zero = new Num(0);
 		long base = a.base();
@@ -359,13 +406,23 @@ public class Num  implements Comparable<Num> {
 		}
     }
 
-	// Checks if a Num object equals to 0
+	/**
+	 * Checks if a Num object equals to 0
+	 * @param a
+	 * @return true or false
+	 */
 	private static boolean isZero(Num a) {
 		return ((a.len == 1) && (a.arr[0] == 0));
 	}
 
-    // return a%b
-	// https://www.geeksforgeeks.org/program-to-find-remainder-without-using-modulo-or-operator/
+    /**
+     * Calculates a modulus b
+     * https://www.geeksforgeeks.org/program-to-find-remainder-without-using-modulo-or-operator/
+     * @param a
+     * @param b
+     * @return Num obj a%b
+     * @throws Exception
+     */
 	public static Num mod(Num a, Num b) throws Exception {
 
 		// if base not equal or a modulo 0 is expected or mod of -ve number is expected
@@ -383,8 +440,15 @@ public class Num  implements Comparable<Num> {
 		return remainder;
     }
 
-    // Use binary search
-	// http://www.ardendertat.com/2012/01/26/programming-interview-questions-27-squareroot-of-a-number/
+    
+	/**
+	 * Calculates square root of a given number
+	 * Uses binary search approach
+	 * http://www.ardendertat.com/2012/01/26/programming-interview-questions-27-squareroot-of-a-number/
+	 * @param a
+	 * @return Num obj squareroot of a
+	 * @throws Exception
+	 */
 	public static Num squareRoot(Num a) throws Exception {
     		if(a.isNegative) {
 			return null;
@@ -413,10 +477,11 @@ public class Num  implements Comparable<Num> {
 		return truncate(low);
     }
 
-
-    // Utility functions
-
-	// Compares the numbers irrespective of sign - compare absolute of 2 numbers
+	/**
+	 * Compares the numbers irrespective of sign - compare absolute of 2 numbers
+	 * @param other
+	 * @return 0 or 1 or -1
+	 */
 	private int absoluteCompare(Num other) {
 		int size = 0;
 		if (this.len > other.len)
@@ -437,7 +502,11 @@ public class Num  implements Comparable<Num> {
 		return 0;
 	}
 
-    // compare "this" to "other": return +1 if this is greater, 0 if equal, -1 otherwise
+    /**
+     * compare "this" to "other": return +1 if this is greater, 0 if equal, -1 otherwise
+     * @param other
+     * @return 0 or 1 or -1 
+     */
     public int compareTo(Num other) { 
     	int size =0;
     	if(this.isNegative==other.isNegative) {
@@ -476,9 +545,13 @@ public class Num  implements Comparable<Num> {
 	return 0;
     }
     
-    // Output using the format "base: elements of list ..."
-    // For example, if base=100, and the number stored corresponds to 10965,
-    // then the output is "100: 65 9 1"
+    
+    /**
+     *Outputs using the format "base: elements of list ..."
+     *For example, if base=100, and the number stored corresponds to 10965,
+     *then the output is "100: 65 9 1"
+     *
+     */
     public void printList() {
 		System.out.print(this.base + ": ");
 		if (this.isNegative) {
@@ -490,7 +563,11 @@ public class Num  implements Comparable<Num> {
 		System.out.println();
     }
     
-    // Return number to a string in base 10
+    
+    /**
+     * Returns number to a string in base 10
+     * @return String
+     */
     public String toString() {
 		Num base10 = truncate(this);
 		String retString = "";
@@ -509,9 +586,18 @@ public class Num  implements Comparable<Num> {
 		}
 		return retString;
     }
-
+    /**
+     * Returns base of the number
+     * @return long
+     */
     public long base() { return base; }
-
+    
+    
+    /**
+     * Converts a given number to base 10 form
+     * @return Num obj in base 10
+     * @throws Exception
+     */
 	public Num convertToBase10() throws Exception {
 		// convert to decimal - horner's method
 		int size = (int) Math.ceil(((this.len + 1) / Math.log10(10)) + 1);
@@ -525,7 +611,12 @@ public class Num  implements Comparable<Num> {
 		return truncate(inBase10);
 	}
 
-	// Return number equal to "this" number, in base=newBase
+	/**
+	 * Return number equal to "this" number, in base=newBase
+	 * @param newBase
+	 * @return Num obj in newbase
+	 * @throws Exception
+	 */
 	public Num convertBase(int newBase) throws Exception {
 		Num inBase10 = this;
 		Num inNewbase = this;
@@ -557,7 +648,10 @@ public class Num  implements Comparable<Num> {
 		return truncate(inNewbase); // call truncate here
 	}
 
-	// Divide by 2, for using in binary search
+	/**
+	 * Divide by 2, for using in binary search
+	 * @return Num obj number/2
+	 */
 	public Num by2() {
 		long[] newNum;
 		if (this.base == 2) { // right shift once
@@ -580,9 +674,14 @@ public class Num  implements Comparable<Num> {
 	}
 
 
-    // Evaluate an expression in postfix and return resulting number
-    // Each string is one of: "*", "+", "-", "/", "%", "^", "0", or
-    // a number: [1-9][0-9]*.  There is no unary minus operator.
+    /**
+     * Evaluates an expression in postfix and return resulting number
+     * Each string is one of: "*", "+", "-", "/", "%", "^", "0", or
+     * a number: [1-9][0-9]*.  There is no unary minus operator.
+     * @param expr
+     * @return Num obj result of postfix evaluation
+     * @throws Exception
+     */
     public static Num evaluatePostfix(String[] expr) throws Exception {
 		Deque<String> stack = new ArrayDeque<String>();
 		Num res;
@@ -627,15 +726,26 @@ public class Num  implements Comparable<Num> {
 		return new Num(stack.pop());
     }
 
-    // Evaluate an expression in infix and return resulting number
-    // Each string is one of: "*", "+", "-", "/", "%", "^", "(", ")", "0", or
-    // a number: [1-9][0-9]*.  There is no unary minus operator.
+    /**
+     * Evaluate an expression in infix and return resulting number
+     * Each string is one of: "*", "+", "-", "/", "%", "^", "(", ")", "0", or
+     * a number: [1-9][0-9]*.  There is no unary minus operator.
+     * Converts to postfix representation and evaluates postfix expression
+     * @param expr
+     * @return Num obj result of infix evaluation
+     */
+    
     public static Num evaluateInfix(String[] expr) throws Exception {
 		String[] postFix = InfixToPostfix(expr);
 		return evaluatePostfix(postFix);
     }
 
 
+    /**
+     * 
+     * @param expr
+     * @return Num obj result of infix evaluation
+     */
     private static String[] InfixToPostfix(String[] expr) {
 		Stack<String> opStack = new Stack<>();
 		opStack.push("$"); // base of the stack to avaid handling empty stack case
@@ -679,8 +789,13 @@ public class Num  implements Comparable<Num> {
 			
 	}
 
-	// Unary - is not supported and checked, so we check if if a number is 0 or >0
-	// Ex: 08 does not qualify as a number, enter 8 instead
+	
+    /**
+     * Unary - is not supported and checked, so we check if if a number is 0 or >0
+     * Ex: 08 does not qualify as a number, enter 8 instead
+     * @param token
+     * @return true or false
+     */
 	private static boolean isNumber(String token) {
 		String regex = "[1-9][0-9]*";
 		if (token.matches(regex) || token.equals("0")) {
@@ -688,7 +803,13 @@ public class Num  implements Comparable<Num> {
 		}
 		return false;
 	}
-
+	
+	/**
+	 * Compares precedence of two operators using precedenceMap
+	 * @param op1
+	 * @param op2
+	 * @return true or false
+	 */
 	private static boolean comparePrecedence(String op1, String op2) {
 		//if op1 has a higher precedence than op2
 		if (precedenceMap.get(op1) > precedenceMap.get(op2)) {
@@ -697,6 +818,11 @@ public class Num  implements Comparable<Num> {
 		return false;
 	}
 
+	/**
+	 * Main method
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
 
 		Num x = new Num("36666669999999999999");
