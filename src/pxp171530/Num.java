@@ -1,7 +1,6 @@
 
 package pxp171530;
 
-import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
@@ -703,29 +702,22 @@ public class Num  implements Comparable<Num> {
 		Num x = new Num("36666669999999999999");
 		Num y = new Num("272");
 
-		BigInteger big1 = new BigInteger("36666669999999999999");
-		BigInteger big2 = new BigInteger("272");
-
 		System.out.println("Add");
 		Num z = Num.add(x, y);
 		System.out.println(z.toString());
-		System.out.println(big1.add(big2));
 
 		System.out.println("Subtract");
 		Num z1 = subtract(x, y);
 		System.out.println(z1.toString());
-		System.out.println(big1.subtract(big2));
 
 		System.out.println("Power");
 		Num a = Num.power(x, 8);
 		System.out.println(a.toString());
-		System.out.println(big1.pow(8));
 
 		System.out.println("Product");
 		Num b = Num.product(x, y);
 		b.printList();
 		System.out.println(b.toString());
-		System.out.println(big1.multiply(big2));
 		
 		System.out.println("Divide");
 		Num m = Num.divide(x, y);
@@ -753,7 +745,6 @@ public class Num  implements Comparable<Num> {
 		d = mod(d, d1);
 		d.printList();
 		System.out.println(d.toString());
-		System.out.println(new BigInteger("9999999999999999999999").mod(new BigInteger("36666669")));
 
 		System.out.println("Convert base");
 		Num e = new Num(55);
