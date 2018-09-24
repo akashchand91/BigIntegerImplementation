@@ -1,3 +1,4 @@
+
 package pxp171530;
 
 import java.math.BigInteger;
@@ -9,6 +10,16 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 
+/**
+ * 
+ * @author pushpita panigrahi - pxp171530
+ * @author deeksha lakshmeesh mestha - dxm172630
+ * @author sneha hulivan girisha - sxh173730
+ * @author akash chand - axc173730
+ *
+ */
+
+// Num class stores and performs arithmetic operations on arbitrarily large integers
 public class Num  implements Comparable<Num> {
 
 	private static HashMap<String, Integer> precedenceMap; //keeping track of the operator precedences
@@ -30,6 +41,7 @@ public class Num  implements Comparable<Num> {
 		precedenceMap.put("^", 4);
     }
     
+	// constructor to create Num object given a string containing a number
     public Num(String s) {
 		// handle negative
 		if (s.charAt(0) == '-') {
